@@ -1,0 +1,181 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/View/PrefabPainterWindow.uss?fileID=7433441132597879392&amp;guid=1d93d96e22cd7f1429707b56e9402af2&amp;type=3#PrefabPainterWindow" />
+    <engine:VisualElement name="Root" data-source-type="PrefabPainterWindow, Misaki.ArtTool.Editor" style="flex-grow: 1; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
+        <engine:VisualElement name="Title" style="flex-grow: 0;">
+            <engine:Label text="Prefab Painter" style="align-self: center; font-size: 28px; margin-top: 32px; margin-bottom: 24px;" />
+        </engine:VisualElement>
+        <engine:VisualElement name="Toolbar" style="flex-grow: 0; flex-direction: row; justify-content: center; margin-bottom: 16px;">
+            <engine:Button icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/unavailable.png?fileID=2800000&amp;guid=89f753d5e2b91c842a8de6447e3fe8b3&amp;type=3#unavailable" name="Disable-Mode-Button" tooltip="Paint" class="Selected" style="width: 30px; height: 30px;" />
+            <engine:Button icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/Paint.png?fileID=2800000&amp;guid=a36d0148cfebe8c428c95a88eae0819a&amp;type=3#Paint" name="Paint-Mode-Button" tooltip="Paint" style="width: 30px; height: 30px;" />
+            <engine:Button icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/erase.png?fileID=2800000&amp;guid=937646d041ffb2c4c8b4139900477869&amp;type=3#erase" name="Erase-Mode-Button" tooltip="Erase" style="width: 30px; height: 30px;" />
+        </engine:VisualElement>
+        <engine:TabView style="flex-grow: 1;">
+            <engine:Tab label="Prefab" name="Prefab-Tab" icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/object.png?fileID=2800000&amp;guid=a61bfbad022af42448490799093b2d97&amp;type=3#object" style="flex-grow: 1;">
+                <engine:VisualElement name="Prefab-List" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
+                    <editor:Toolbar style="margin-top: 0; margin-right: 0; margin-bottom: 8px; margin-left: 0;">
+                        <editor:ToolbarButton icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/import.png?fileID=2800000&amp;guid=bc1c9a2da21fe83448b139a8a35aa32e&amp;type=3#import" tooltip="Import prefab list" style="width: 30px; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px;" />
+                        <editor:ToolbarButton icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/export.png?fileID=2800000&amp;guid=c87abe98330a0ef46b5bbf5b784e8bc3&amp;type=3#export" tooltip="Export prefab list" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; width: 30px;" />
+                        <editor:ToolbarSpacer style="flex-grow: 1;" />
+                        <editor:ToolbarSearchField style="width: 50%;" />
+                    </editor:Toolbar>
+                    <engine:ListView reorderable="true" reorder-mode="Animated" show-border="true" fixed-item-height="50" item-template="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/View/PrefabListItemTemplate.uxml?fileID=9197481963319205126&amp;guid=05d16995f16706d48957fd51a6f23988&amp;type=3#PrefabListItemTemplate" name="SourcePrefabs-ListView" data-source-path="ViewModel" show-add-remove-footer="true" binding-source-selection-mode="AutoAssign" virtualization-method="DynamicHeight" style="max-height: 1000px;">
+                        <Bindings>
+                            <engine:DataBinding property="itemsSource" data-source-path="SourcePrefabs" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:ListView>
+                    <engine:VisualElement name="List-Setting" class="SettingContainer PropertyContainer">
+                        <engine:Label text="List setting" name="List-Setting-Header" class="SubHeader" />
+                        <engine:VisualElement name="Scatter-Properties" class="PropertyContainer" style="flex-grow: 1;">
+                            <engine:DropdownField label="Random Order" choices="Disable,Enable" index="1" data-source-path="ViewModel">
+                                <Bindings>
+                                    <engine:DataBinding property="index" data-source-path="RandomOrder" binding-mode="TwoWay" />
+                                </Bindings>
+                            </engine:DropdownField>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:VisualElement name="Prefab-Setting" data-source-path="ViewModel" style="flex-grow: 1;">
+                    <engine:Label text="Prefab setting" class="Header" />
+                    <engine:VisualElement class="PropertyContainer">
+                        <engine:VisualElement name="Scatter-Setting" class="SettingContainer">
+                            <engine:Label text="Scatter setting" name="Scatter-Header" class="SubHeader" />
+                            <engine:VisualElement name="Scatter-Properties" class="PropertyContainer" style="flex-grow: 1;">
+                                <engine:EnumField label="Align To" type="Misaki.ArtToolEditor.AlignmentType, Misaki.ArtTool.Editor" data-source-path="CurrentSelection">
+                                    <Bindings>
+                                        <engine:DataBinding property="value" data-source-path="Alignment" binding-mode="TwoWay" />
+                                    </Bindings>
+                                </engine:EnumField>
+                                <engine:EnumField label="Set Parent To" value="Center" type="Misaki.ArtToolEditor.ParentType, Misaki.ArtTool.Editor" data-source-path="CurrentSelection">
+                                    <Bindings>
+                                        <engine:DataBinding property="value" data-source-path="Parent" binding-mode="TwoWay" />
+                                    </Bindings>
+                                </engine:EnumField>
+                                <editor:ObjectField label="Parent Object" type="UnityEngine.GameObject, UnityEngine.CoreModule" data-source-path="CurrentSelection">
+                                    <Bindings>
+                                        <engine:DataBinding property="value" data-source-path="ParentObject" binding-mode="TwoWay" />
+                                    </Bindings>
+                                </editor:ObjectField>
+                                <engine:Slider label="Object Spacing" value="1" high-value="100" show-input-field="true" data-source-path="CurrentSelection" low-value="0.01">
+                                    <Bindings>
+                                        <engine:DataBinding property="value" data-source-path="ObjectSpacing" binding-mode="TwoWay" />
+                                    </Bindings>
+                                </engine:Slider>
+                                <engine:EnumField label="Reference Point" type="Misaki.ArtToolEditor.ReferencePointType, Misaki.ArtTool.Editor" data-source-path="CurrentSelection">
+                                    <Bindings>
+                                        <engine:DataBinding property="value" data-source-path="ReferencePoint" binding-mode="TwoWay" />
+                                    </Bindings>
+                                </engine:EnumField>
+                                <engine:Slider label="Slop Filter" value="45" high-value="90" show-input-field="true" data-source-path="CurrentSelection">
+                                    <Bindings>
+                                        <engine:DataBinding property="value" data-source-path="SlopeFilter" binding-mode="TwoWay" />
+                                    </Bindings>
+                                </engine:Slider>
+                            </engine:VisualElement>
+                        </engine:VisualElement>
+                        <engine:VisualElement name="Randomness-Setting" class="SettingContainer">
+                            <engine:Label text="Randomness" name="Randomness-Header" class="SubHeader" />
+                            <engine:VisualElement name="Randomness-Properties" class="PropertyContainer" style="flex-grow: 1;">
+                                <editor:EnumFlagsField label="Enable" value="None" type="Misaki.ArtToolEditor.RandomnessType, Misaki.ArtTool.Editor" data-source-path="CurrentSelection">
+                                    <Bindings>
+                                        <engine:DataBinding property="value" data-source-path="Randomness" binding-mode="TwoWay" />
+                                    </Bindings>
+                                </editor:EnumFlagsField>
+                                <engine:Label text="Position" class="SmallHeader" />
+                                <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                                    <engine:Vector3Field label="Min" value="0,0,0" name="Randomness-Position-Min" data-source-path="CurrentSelection">
+                                        <Bindings>
+                                            <engine:DataBinding property="value" data-source-path="PositionMin" binding-mode="TwoWay" />
+                                        </Bindings>
+                                    </engine:Vector3Field>
+                                    <engine:Vector3Field label="Max" value="0,0,0" name="Randomness-Position-Min" data-source-path="CurrentSelection">
+                                        <Bindings>
+                                            <engine:DataBinding property="value" data-source-path="PositionMax" binding-mode="TwoWay" />
+                                        </Bindings>
+                                    </engine:Vector3Field>
+                                </engine:VisualElement>
+                                <engine:Label text="Rotation" class="SmallHeader" />
+                                <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                                    <engine:Vector3Field label="Min" value="0,0,0" name="Randomness-Rotation-Min" data-source-path="CurrentSelection">
+                                        <Bindings>
+                                            <engine:DataBinding property="value" data-source-path="RotationMin" binding-mode="TwoWay" />
+                                        </Bindings>
+                                    </engine:Vector3Field>
+                                    <engine:Vector3Field label="Max" value="0,0,0" name="Randomness-Rotation-Min" data-source-path="CurrentSelection">
+                                        <Bindings>
+                                            <engine:DataBinding property="value" data-source-path="RotationMax" binding-mode="TwoWay" />
+                                        </Bindings>
+                                    </engine:Vector3Field>
+                                </engine:VisualElement>
+                                <engine:Label text="Scale" class="SmallHeader" />
+                                <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                                    <engine:Vector3Field label="Min" value="1,1,1" name="Randomness-Scale-Min" data-source-path="CurrentSelection">
+                                        <Bindings>
+                                            <engine:DataBinding property="value" data-source-path="ScaleMin" binding-mode="TwoWay" />
+                                        </Bindings>
+                                    </engine:Vector3Field>
+                                    <engine:Vector3Field label="Max" value="1,1,1" name="Randomness-Scale-Max" data-source-path="CurrentSelection">
+                                        <Bindings>
+                                            <engine:DataBinding property="value" data-source-path="ScaleMax" binding-mode="TwoWay" />
+                                        </Bindings>
+                                    </engine:Vector3Field>
+                                </engine:VisualElement>
+                            </engine:VisualElement>
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:Tab>
+            <engine:Tab label="Brush" name="Brush-Tab" icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/brush.png?fileID=2800000&amp;guid=08654cfbeb927194e962e78c4aa830c8&amp;type=3#brush" data-source-path="ViewModel.CurrentBrushSetting">
+                <engine:VisualElement name="Brush-Shape" style="flex-grow: 1;">
+                    <engine:Label text="Brush Shape" class="SubHeader" />
+                    <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                        <engine:DropdownField label="Shape" choices="Circle,Grid,Spline" index="0" />
+                        <engine:Slider label="Size" value="1" high-value="10" show-input-field="true">
+                            <Bindings>
+                                <engine:DataBinding property="value" data-source-path="BrushSize" binding-mode="TwoWay" />
+                            </Bindings>
+                        </engine:Slider>
+                        <engine:FloatField label="Splat Spacing" value="0">
+                            <Bindings>
+                                <engine:DataBinding property="value" data-source-path="SplatSpacing" binding-mode="TwoWay" />
+                            </Bindings>
+                        </engine:FloatField>
+                        <engine:Slider label="Density" value="0.5" high-value="1" show-input-field="true">
+                            <Bindings>
+                                <engine:DataBinding property="value" data-source-path="Density" binding-mode="TwoWay" />
+                            </Bindings>
+                        </engine:Slider>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:VisualElement name="Brush-Feature" style="flex-grow: 1;">
+                    <engine:Label text="Brush Feature" class="SubHeader" />
+                    <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                        <engine:HelpBox message-type="Warning" text="You need to set a GPU instancing drawer to let GPU instancing work properly" />
+                        <engine:DropdownField label="Use GPU Instancing" choices="Disable,Enable" index="0">
+                            <Bindings>
+                                <engine:DataBinding property="index" data-source-path="GpuInstancing" binding-mode="TwoWay" />
+                            </Bindings>
+                        </engine:DropdownField>
+                        <engine:DropdownField label="Use Gravity" choices="Disable,Enable" index="0">
+                            <Bindings>
+                                <engine:DataBinding property="index" data-source-path="Gravity" binding-mode="TwoWay" />
+                            </Bindings>
+                        </engine:DropdownField>
+                        <editor:LayerMaskField label="Paint Layer" value="1">
+                            <Bindings>
+                                <engine:DataBinding property="value" data-source-path="PaintLayer" binding-mode="TwoWay" />
+                            </Bindings>
+                        </editor:LayerMaskField>
+                        <engine:DropdownField label="Avoid Overlap" choices="Disable,Enable" index="1">
+                            <Bindings>
+                                <engine:DataBinding property="index" data-source-path="AvoidOverlap" binding-mode="TwoWay" />
+                            </Bindings>
+                        </engine:DropdownField>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:Tab>
+            <engine:Tab label="Setting" name="Setting-Tab" icon-image="project://database/Packages/com.misaki.art-tools/Editor/PrefabPainter/Icon/setting.png?fileID=2800000&amp;guid=1517c386de843a742afb10e4d9f20241&amp;type=3#setting">
+                <editor:ObjectField label="Instance Drawer" type="Misaki.ArtTool.InstanceDrawer, Misaki.ArtTool" />
+            </engine:Tab>
+        </engine:TabView>
+    </engine:VisualElement>
+</engine:UXML>

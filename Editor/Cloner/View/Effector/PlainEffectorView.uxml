@@ -1,0 +1,102 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ClonerEditorStyle.uss?fileID=7433441132597879392&amp;guid=216b892cd94cc624da01dc4947facdcb&amp;type=3#ClonerEditorStyle" />
+    <engine:VisualElement data-source-type="Misaki.ArtTool.PlainEffector, Misaki.ArtTool" style="flex-grow: 1;">
+        <engine:VisualElement>
+            <engine:Label text="Effector" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer">
+                <engine:Slider label="Strength" value="42" high-value="1" fill="true" show-input-field="true">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="strength" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:Slider>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement>
+            <engine:Label text="Parameter" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer">
+                <engine:EnumField label="Transform Space" value="Center" type="Misaki.ArtTool.TransformSpace, Misaki.ArtTool">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="transformSpace" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:EnumField>
+                <engine:DropdownField label="Position" choices="Disable,Enable" index="0" class="SmallHeader">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="isEnablePosition" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
+                <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                    <engine:Vector3Field label="Position Offset">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="position" binding-mode="TwoWay" source-to-ui-converters="Float3ToVector3Converter" ui-to-source-converters="Float3ToVector3Converter" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="isEnablePosition" binding-mode="ToTarget" source-to-ui-converters="BoolToDisplayConvertor" />
+                    </Bindings>
+                </engine:VisualElement>
+                <engine:DropdownField label="Rotation" choices="Disable,Enable" index="0" class="SmallHeader">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="isEnableRotation" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
+                <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                    <engine:Vector3Field label="Rotation Offset">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="rotation" binding-mode="TwoWay" source-to-ui-converters="Float3ToVector3Converter" ui-to-source-converters="Float3ToVector3Converter" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="isEnableRotation" binding-mode="ToTarget" source-to-ui-converters="BoolToDisplayConvertor" />
+                    </Bindings>
+                </engine:VisualElement>
+                <engine:DropdownField label="Scale" choices="Disable,Enable" index="0" class="SmallHeader">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="isEnableScale" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
+                <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                    <engine:DropdownField label="Absolute Scale" choices="Disable,Enable" index="0">
+                        <Bindings>
+                            <engine:DataBinding property="index" data-source-path="isAbsoluteScale" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:DropdownField>
+                    <engine:DropdownField label="Uniform Scale" choices="Disable,Enable" index="1">
+                        <Bindings>
+                            <engine:DataBinding property="index" data-source-path="isUniformScale" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:DropdownField>
+                    <engine:Vector3Field label="Scale Offset" value="1,1,1">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="scale" binding-mode="TwoWay" source-to-ui-converters="Float3ToVector3Converter" ui-to-source-converters="Float3ToVector3Converter" />
+                            <engine:DataBinding property="style.display" data-source-path="isUniformScale" binding-mode="ToTarget" source-to-ui-converters="InverseBoolToDisplayConverter" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <engine:FloatField label="Scale Offset" value="1">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="uniformScale" binding-mode="TwoWay" />
+                            <engine:DataBinding property="style.display" data-source-path="isUniformScale" binding-mode="ToTarget" source-to-ui-converters="BoolToDisplayConvertor" />
+                        </Bindings>
+                    </engine:FloatField>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="isEnableScale" binding-mode="ToTarget" source-to-ui-converters="BoolToDisplayConvertor" />
+                    </Bindings>
+                </engine:VisualElement>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement>
+            <engine:Label text="Fields" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                <engine:VisualElement style="flex-grow: 1; flex-direction: row; margin-top: 4px; margin-right: 4px; margin-bottom: 8px; margin-left: 4px;">
+                    <engine:Label text="Enable" enable-rich-text="false" style="font-size: 9px; -unity-text-align: middle-left; margin-left: 4px;" />
+                    <engine:Label text="Field" enable-rich-text="false" style="flex-grow: 1; margin-left: 12px; font-size: 9px; -unity-text-align: middle-left;" />
+                    <engine:Label text="Blending" enable-rich-text="false" style="width: 100px; font-size: 9px; -unity-text-align: middle-left;" />
+                </engine:VisualElement>
+                <engine:ListView reorderable="true" reorder-mode="Animated" binding-source-selection-mode="AutoAssign" show-add-remove-footer="true" show-border="true" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ItemTemplate/FieldItemTemplate.uxml?fileID=9197481963319205126&amp;guid=d432ee1ae85c33d4abf54b61fc8a45f5&amp;type=3#FieldItemTemplate" fixed-item-height="45">
+                    <Bindings>
+                        <engine:DataBinding property="itemsSource" data-source-path="fieldDataList" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:ListView>
+            </engine:VisualElement>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

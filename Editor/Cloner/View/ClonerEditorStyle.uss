@@ -1,0 +1,24 @@
+.SubHeader {
+    margin-bottom: 6px;
+    -unity-font-style: bold;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.PropertyContainer {
+    flex-grow: 0;
+    margin-left: 8px;
+}
+
+.Header {
+    -unity-font-style: bold;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.SmallHeader {
+    margin-top: 6px;
+    margin-bottom: 4px;
+    -unity-font-style: bold;
+}

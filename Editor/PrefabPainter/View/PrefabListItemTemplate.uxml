@@ -1,0 +1,26 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <engine:VisualElement name="Root" data-source-type="Misaki.ArtToolEditor.SourcePrefab, Misaki.ArtTool.Editor" style="flex-grow: 1; flex-direction: row; height: 50px;">
+        <engine:Toggle style="margin-right: 8px; margin-top: 3px;">
+            <Bindings>
+                <engine:DataBinding property="value" data-source-path="Enabled" binding-mode="TwoWay" />
+            </Bindings>
+        </engine:Toggle>
+        <engine:VisualElement name="Icon" style="width: 50px;">
+            <Bindings>
+                <engine:DataBinding property="style.backgroundImage" data-source-path="Icon" binding-mode="TwoWay" />
+            </Bindings>
+        </engine:VisualElement>
+        <engine:VisualElement style="flex-grow: 1; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 8px; justify-content: center;">
+            <editor:ObjectField type="UnityEngine.GameObject, UnityEngine.CoreModule">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="Prefab" binding-mode="TwoWay" />
+                </Bindings>
+            </editor:ObjectField>
+            <engine:Slider value="0.5" high-value="1" show-input-field="true">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="Frequency" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:Slider>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

@@ -1,0 +1,45 @@
+.Header {
+    -unity-font-style: bold;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.SubHeader {
+    margin-bottom: 6px;
+    -unity-font-style: bold;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.SmallHeader {
+    margin-top: 6px;
+    margin-bottom: 4px;
+}
+
+.PropertyContainer {
+    flex-grow: 1;
+    margin-left: 8px;
+}
+
+#Root > .unity-tab-view > #unity-tab-view__header-container {
+    align-self: center;
+}
+
+#unity-tab__content-container {
+    padding-top: 16px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
+
+.Selected {
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgb(186, 186, 186);
+    border-right-color: rgb(186, 186, 186);
+    border-top-color: rgb(186, 186, 186);
+    border-bottom-color: rgb(186, 186, 186);
+}

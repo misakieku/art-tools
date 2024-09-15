@@ -1,0 +1,45 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ClonerEditorStyle.uss?fileID=7433441132597879392&amp;guid=216b892cd94cc624da01dc4947facdcb&amp;type=3#ClonerEditorStyle" />
+    <engine:VisualElement data-source-type="Misaki.ArtTool.PushApartEffector, Misaki.ArtTool" style="flex-grow: 1;">
+        <engine:VisualElement>
+            <engine:Label text="Effector" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer">
+                <engine:Slider label="Strength" value="42" high-value="1" fill="true" show-input-field="true">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="strength" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:Slider>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement>
+            <engine:Label text="Parameter" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer">
+                <engine:FloatField label="Radius" value="1">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="radius" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:FloatField>
+                <engine:UnsignedIntegerField label="Iteration" value="10">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="iteration" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:UnsignedIntegerField>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement>
+            <engine:Label text="Fields" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer" style="flex-grow: 1;">
+                <engine:VisualElement style="flex-grow: 1; flex-direction: row; margin-top: 4px; margin-right: 4px; margin-bottom: 8px; margin-left: 4px;">
+                    <engine:Label text="Enable" enable-rich-text="false" style="font-size: 9px; -unity-text-align: middle-left; margin-left: 4px;" />
+                    <engine:Label text="Field" enable-rich-text="false" style="flex-grow: 1; margin-left: 12px; font-size: 9px; -unity-text-align: middle-left;" />
+                    <engine:Label text="Blending" enable-rich-text="false" style="width: 100px; font-size: 9px; -unity-text-align: middle-left;" />
+                </engine:VisualElement>
+                <engine:ListView reorderable="true" reorder-mode="Animated" binding-source-selection-mode="AutoAssign" show-add-remove-footer="true" show-border="true" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ItemTemplate/FieldItemTemplate.uxml?fileID=9197481963319205126&amp;guid=d432ee1ae85c33d4abf54b61fc8a45f5&amp;type=3#FieldItemTemplate" fixed-item-height="45">
+                    <Bindings>
+                        <engine:DataBinding property="itemsSource" data-source-path="fieldDataList" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:ListView>
+            </engine:VisualElement>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

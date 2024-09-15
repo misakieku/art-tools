@@ -1,0 +1,28 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <engine:VisualElement data-source-type="Misaki.ArtTool.FieldData, Misaki.ArtTool" style="flex-direction: row;">
+        <engine:Toggle style="margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px;">
+            <Bindings>
+                <engine:DataBinding property="value" data-source-path="enable" binding-mode="TwoWay" />
+            </Bindings>
+        </engine:Toggle>
+        <engine:VisualElement style="flex-grow: 1;">
+            <engine:VisualElement style="flex-direction: row;">
+                <editor:ObjectField type="Misaki.ArtTool.FieldBase, Misaki.ArtTool" style="flex-grow: 1;">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="field" binding-mode="TwoWay" />
+                    </Bindings>
+                </editor:ObjectField>
+                <engine:EnumField value="Center" type="Misaki.ArtTool.BlendingMode, Misaki.ArtTool" style="width: 100px;">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="blending" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:EnumField>
+            </engine:VisualElement>
+            <engine:Slider value="42" high-value="1" show-input-field="true">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="opacity" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:Slider>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

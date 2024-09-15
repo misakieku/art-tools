@@ -1,0 +1,56 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ClonerEditorStyle.uss?fileID=7433441132597879392&amp;guid=216b892cd94cc624da01dc4947facdcb&amp;type=3#ClonerEditorStyle" />
+    <engine:VisualElement data-source-type="Misaki.ArtTool.LinearField, Misaki.ArtTool" style="flex-grow: 1;">
+        <engine:Label text="Remapping" class="SubHeader" />
+        <engine:VisualElement class="PropertyContainer">
+            <engine:DropdownField label="State" choices="Disable,Enable" index="0" class="SmallHeader">
+                <Bindings>
+                    <engine:DataBinding property="index" data-source-path="remappingSetting.enable" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:DropdownField>
+            <engine:VisualElement>
+                <Misaki.ArtToolEditor.RemappingGraph style="flex-grow: 1;">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="remappingSetting" binding-mode="ToTarget" />
+                    </Bindings>
+                </Misaki.ArtToolEditor.RemappingGraph>
+                <engine:Slider label="Strength" value="42" high-value="1" show-input-field="true">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="remappingSetting.strength" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:Slider>
+                <engine:DropdownField label="Invert" choices="Disable,Enable" index="0">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="remappingSetting.invert" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
+                <engine:Slider label="Inner Offset" value="0" high-value="1" show-input-field="true">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="remappingSetting.innerOffset" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:Slider>
+                <engine:Slider label="Min" value="0" high-value="1" show-input-field="true">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="remappingSetting.min" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:Slider>
+                <engine:Slider label="Max" value="1" high-value="1" show-input-field="true">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="remappingSetting.max" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:Slider>
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="remappingSetting.enable" binding-mode="ToTarget" source-to-ui-converters="BoolToDisplayConvertor" />
+                </Bindings>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:Label text="Parameter" class="SubHeader" />
+        <engine:VisualElement class="PropertyContainer">
+            <engine:FloatField label="Length" value="10">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="length" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:FloatField>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

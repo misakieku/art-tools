@@ -1,0 +1,14 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <engine:VisualElement data-source-type="Misaki.ArtTool.InputObjectData, Misaki.ArtTool" style="flex-direction: row;">
+        <editor:ObjectField type="UnityEngine.GameObject, UnityEngine.CoreModule" style="flex-grow: 1;">
+            <Bindings>
+                <engine:DataBinding property="value" data-source-path="gameObject" binding-mode="TwoWay" />
+            </Bindings>
+        </editor:ObjectField>
+        <engine:UnsignedIntegerField value="1" style="width: 50px;">
+            <Bindings>
+                <engine:DataBinding property="value" data-source-path="frequency" binding-mode="TwoWay" />
+            </Bindings>
+        </engine:UnsignedIntegerField>
+    </engine:VisualElement>
+</engine:UXML>

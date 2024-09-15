@@ -1,0 +1,84 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ClonerEditorStyle.uss?fileID=7433441132597879392&amp;guid=216b892cd94cc624da01dc4947facdcb&amp;type=3#ClonerEditorStyle" />
+    <engine:VisualElement data-source-type="Misaki.ArtTool.Cloner, Misaki.ArtTool" style="flex-grow: 1;">
+        <engine:VisualElement>
+            <engine:Label text="Input Objects" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer">
+                <engine:VisualElement style="flex-grow: 1; flex-direction: row; margin-top: 4px; margin-right: 4px; margin-bottom: 8px; margin-left: 4px;">
+                    <engine:Label text="Object" enable-rich-text="false" style="flex-grow: 1; margin-left: 28px; font-size: 9px; -unity-text-align: middle-left;" />
+                    <engine:Label text="Frequncy" enable-rich-text="false" name="Label" style="width: 50px; font-size: 9px; -unity-text-align: middle-left;" />
+                </engine:VisualElement>
+                <engine:ListView reorderable="true" reorder-mode="Animated" show-border="true" show-add-remove-footer="true" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/InputObjectItemView.uxml?fileID=9197481963319205126&amp;guid=af925948194d82c44a565c55d8ce0de8&amp;type=3#InputObjectItemView" name="input-objects-listview" binding-source-selection-mode="AutoAssign">
+                    <Bindings>
+                        <engine:DataBinding property="itemsSource" data-source-path="inputObjects" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:ListView>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement style="flex-grow: 0;">
+            <engine:Label text="Cloner" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer" style="flex-grow: 0;">
+                <engine:EnumField label="Distribution Mode" value="Grid" type="Misaki.ArtTool.DistributionMode, Misaki.ArtTool" name="distribution-mode">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="distributionMode" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:EnumField>
+                <engine:DropdownField label="Clone Mode" index="0" choices="Iterate,Random" tooltip="Need to regenerate the points when changing the clone mode">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="isRandomDistribution" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
+                <engine:UnsignedIntegerField label="Seed" value="123456" tooltip="Need to regenerate the points to let seed work properly">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="seed" binding-mode="TwoWay" />
+                        <engine:DataBinding property="style.display" data-source-path="isRandomDistribution" binding-mode="ToTarget" source-to-ui-converters="BoolToDisplayConvertor" />
+                    </Bindings>
+                </engine:UnsignedIntegerField>
+                <engine:DropdownField label="Auto Generate" choices="Disable,Enable" index="0">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="autoGenerate" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
+                <engine:DropdownField label="Render Mode" choices="Gameobject,Instancing" index="0" name="render-mode-dropdown">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="isRenderInstancing" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement style="flex-grow: 0;">
+            <engine:Label text="Parameter" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer" style="flex-grow: 0;">
+                <editor:PropertyField name="spline-parameter-property" binding-path="splineDistributionSetting" />
+                <editor:PropertyField name="linear-parameter-property" binding-path="linearDistributionSetting" />
+                <editor:PropertyField name="grid-parameter-property" binding-path="gridDistributionSetting" />
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement>
+            <engine:Label text="Effectors" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer">
+                <engine:ListView reorderable="true" reorder-mode="Animated" show-border="true" show-add-remove-footer="true" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/EffectorItemTemplate.uxml?fileID=9197481963319205126&amp;guid=9a72cc6a25b7e104991d25d5c2458b81&amp;type=3#EffectorItemTemplate" name="effectors-listview" binding-source-selection-mode="AutoAssign">
+                    <Bindings>
+                        <engine:DataBinding property="itemsSource" data-source-path="effectors" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:ListView>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement style="flex-grow: 0;">
+            <engine:Label text="Debug" class="SubHeader" />
+            <engine:VisualElement class="PropertyContainer" style="flex-grow: 0;">
+                <engine:EnumField label="Debug Mode" value="Center" type="Misaki.ArtTool.DebugMode, Misaki.ArtTool">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="debugMode" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:EnumField>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement>
+            <engine:Label text="Command" class="SubHeader" />
+            <engine:Button text="Generate Points" name="generate-button" />
+            <engine:Button text="Instantiate GameObject" name="instantiate-button" />
+            <engine:Button text="Clear" name="clear-button" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>
