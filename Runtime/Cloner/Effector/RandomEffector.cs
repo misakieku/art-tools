@@ -26,12 +26,14 @@ namespace Misaki.ArtTool
         public float3 scaleMinMax;
         public float uniformScaleMinMax;
 
-        public override void Operate(int index, float4x4 nodeWorldMatrix, ReadOnlySpan<PointData> points, ref float4x4 pointWorldMatrix, ref bool isValid)
+        public override void Operate(int index, float4x4 nodeWorldMatrix, Span<PointData> points)
         {
             if (!isEnablePosition && !isEnableRotation && !isEnableScale)
             {
                 return;
             }
+
+            var currentPoint = points[index];
 
             Random random;
             if (synchronized)
@@ -50,9 +52,9 @@ namespace Misaki.ArtTool
                 }
             }
 
-            MatrixHelper.DecomposeMatrix(pointWorldMatrix, out var position, out var rotation, out var scale);
+            MatrixHelper.DecomposeMatrix(currentPoint.matrix, out var position, out var rotation, out var scale);
 
-            var weight = CalculateFieldsWeight(pointWorldMatrix.c3.xyz);
+            var weight = CalculateFieldsWeight(position);
             if (weight == 0)
             {
                 return;
@@ -68,7 +70,7 @@ namespace Misaki.ArtTool
                         newPosition = math.mul(effectorMatrix, new float4(newPosition, 0.0f)).xyz;
                         break;
                     case TransformSpace.Object:
-                        newPosition = math.mul(pointWorldMatrix, new float4(newPosition, 0.0f)).xyz;
+                        newPosition = math.mul(currentPoint.matrix, new float4(newPosition, 0.0f)).xyz;
                         break;
                     default:
                         break;
@@ -86,7 +88,7 @@ namespace Misaki.ArtTool
                         angle = math.mul(effectorMatrix, new float4(angle, 0.0f)).xyz;
                         break;
                     case TransformSpace.Object:
-                        angle = math.mul(pointWorldMatrix, new float4(angle, 0.0f)).xyz;
+                        angle = math.mul(currentPoint.matrix, new float4(angle, 0.0f)).xyz;
                         break;
                     default:
                         break;
@@ -117,7 +119,9 @@ namespace Misaki.ArtTool
                 scale = math.lerp(scale, scale + newScale, weight);
             }
 
-            pointWorldMatrix = float4x4.TRS(position, rotation, scale);
+            currentPoint.matrix = float4x4.TRS(position, rotation, scale);
+
+            points[index] = currentPoint;
         }
     }
 }

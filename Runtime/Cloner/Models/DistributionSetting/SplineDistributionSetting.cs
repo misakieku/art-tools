@@ -1,28 +1,39 @@
 using System;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
 
 namespace Misaki.ArtTool
 {
     [Serializable]
-    public class SplineDistributionSetting
+    public struct SplineDistributionSetting
     {
         public SplineContainer spline;
 
         public int indexOffset;
 
-        public uint count = 10;
-        public float spacing = 1.0f;
+        public uint count;
+        public float spacing;
 
         public bool isSpacingMode;
+
+        [HideInInspector]
+        public float4x4 splineWorldMatrix;
+        [HideInInspector]
+        public float splineLength;
 
         public int DistributionCount
         {
             get
             {
+                if (spline == null)
+                {
+                    return 0;
+                }
+
                 if (isSpacingMode)
                 {
-                    return Mathf.RoundToInt(spline.CalculateLength() / spacing) + 1;
+                    return Mathf.FloorToInt(spline.CalculateLength() / spacing) + 1;
                 }
                 else
                 {

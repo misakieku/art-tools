@@ -14,6 +14,11 @@
         <engine:VisualElement>
             <engine:Label text="Parameter" class="SubHeader" />
             <engine:VisualElement class="PropertyContainer">
+                <engine:DropdownField label="Mode" choices="Push,Hide" index="0">
+                    <Bindings>
+                        <engine:DataBinding property="index" data-source-path="isHideMode" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:DropdownField>
                 <engine:FloatField label="Radius" value="1">
                     <Bindings>
                         <engine:DataBinding property="value" data-source-path="radius" binding-mode="TwoWay" />

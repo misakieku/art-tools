@@ -9,70 +9,54 @@ namespace Misaki.ArtTool
     public struct PointsGenerationJob : IJobParallelForBatch
     {
         public float4x4 worldMatrix;
+        public int pointSize;
 
         public DistributionMode distributionMode;
 
+        public SplineDistributionSetting splineDistributionSetting;
+        public LinearDistributionSetting linearDistributionSetting;
         public GridDistributionSetting gridDistributionSetting;
 
         [WriteOnly]
-        public NativeArray<float4x4> points;
+        public NativeArray<PointData> points;
 
         public void Execute(int startIndex, int count)
         {
-            switch (distributionMode)
+            for (var i = startIndex; i < startIndex + count; i++)
             {
-                case DistributionMode.Object:
-                    break;
-                case DistributionMode.Linear:
-                    break;
-                case DistributionMode.Grid:
-                    GridDistribution(startIndex, count);
-                    break;
-                case DistributionMode.Radial:
-                    break;
-                case DistributionMode.Honeycomb:
-                    break;
-                default:
-                    break;
+                var pointMatrix = float4x4.identity;
+                var isValid = true;
+                switch (distributionMode)
+                {
+                    case DistributionMode.Object:
+                        break;
+                    case DistributionMode.Spline:
+                        Distribution.SplineDistribution(i, pointSize, splineDistributionSetting, out pointMatrix, out isValid);
+                        break;
+                    case DistributionMode.Linear:
+                        Distribution.LinearDistribution(i, linearDistributionSetting, out pointMatrix, out isValid);
+                        break;
+                    case DistributionMode.Grid:
+                        Distribution.GridDistribution(i, gridDistributionSetting, out pointMatrix, out isValid);
+                        break;
+                    case DistributionMode.Radial:
+                        break;
+                    case DistributionMode.Honeycomb:
+                        break;
+                    default:
+                        break;
+                }
+
+                pointMatrix = math.mul(worldMatrix, pointMatrix);
+
+                points[i] = new PointData()
+                {
+                    matrix = pointMatrix,
+                    isValid = isValid
+                };
             }
+
         }
 
-        private void GridDistribution(int startIndex, int count)
-        {
-            var xIndex = 0;
-            var yIndex = 0;
-            var zIndex = 0;
-
-            switch (gridDistributionSetting.shape)
-            {
-                case GridShape.Cube:
-
-                    for (var i = startIndex; i < startIndex + count; i++)
-                    {
-                        yIndex = i / (gridDistributionSetting.count.x * gridDistributionSetting.count.z);
-                        var remain = i % (gridDistributionSetting.count.x * gridDistributionSetting.count.z);
-                        zIndex = remain / gridDistributionSetting.count.x;
-                        xIndex = remain % gridDistributionSetting.count.x;
-
-                        var localPosition = new float3(xIndex * gridDistributionSetting.spacing.x, yIndex * gridDistributionSetting.spacing.y, zIndex * gridDistributionSetting.spacing.z);
-
-                        localPosition.x -= (gridDistributionSetting.count.x - 1) * gridDistributionSetting.spacing.x / 2.0f;
-                        localPosition.y -= (gridDistributionSetting.count.y - 1) * gridDistributionSetting.spacing.y / 2.0f;
-                        localPosition.z -= (gridDistributionSetting.count.z - 1) * gridDistributionSetting.spacing.z / 2.0f;
-
-                        var localMatrix = float4x4.TRS(localPosition, quaternion.identity, new float3(1.0f));
-
-                        points[i] = math.mul(worldMatrix, localMatrix);
-                    }
-
-                    break;
-                case GridShape.Sphere:
-                    break;
-                case GridShape.Cylinder:
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }

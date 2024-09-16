@@ -22,9 +22,9 @@ namespace Misaki.ArtTool
         public bool autoGenerate;
         public bool isRenderInstancing;
 
-        public SplineDistributionSetting splineDistributionSetting = new();
-        public LinearDistributionSetting linearDistributionSetting = new();
-        public GridDistributionSetting gridDistributionSetting = new();
+        public SplineDistributionSetting splineDistributionSetting;
+        public LinearDistributionSetting linearDistributionSetting;
+        public GridDistributionSetting gridDistributionSetting;
 
         public List<EffectorData> effectors;
 
@@ -161,16 +161,15 @@ namespace Misaki.ArtTool
                 effectorData.effector.Initialize();
             }
 
-            var splineLength = 0.0f;
-            var splineMatrix = float4x4.identity;
             if (distributionMode == DistributionMode.Spline && splineDistributionSetting.spline != null)
             {
-                splineLength = splineDistributionSetting.spline.CalculateLength();
-                splineMatrix = splineDistributionSetting.spline.transform.localToWorldMatrix;
+                splineDistributionSetting.splineWorldMatrix = splineDistributionSetting.spline.transform.localToWorldMatrix;
+                splineDistributionSetting.splineLength = splineDistributionSetting.spline.CalculateLength();
             }
 
             var worldMatrix = transform.localToWorldMatrix;
             Parallel.For(0, _pointSize, i =>
+            //for (var i = 0; i < _pointSize; i++)
             {
                 var pointMatrix = float4x4.identity;
                 var isValid = true;
@@ -179,7 +178,7 @@ namespace Misaki.ArtTool
                     case DistributionMode.Object:
                         break;
                     case DistributionMode.Spline:
-                        Distribution.SplineDistribution(i, _pointSize, splineLength, splineMatrix, splineDistributionSetting, out pointMatrix, out isValid);
+                        Distribution.SplineDistribution(i, _pointSize, splineDistributionSetting, out pointMatrix, out isValid);
                         break;
                     case DistributionMode.Linear:
                         Distribution.LinearDistribution(i, linearDistributionSetting, out pointMatrix, out isValid);
@@ -199,7 +198,30 @@ namespace Misaki.ArtTool
 
                 _points[i].matrix = pointMatrix;
                 _points[i].isValid = isValid;
+                //}
             });
+
+            //var pointsArray = new NativeArray<PointData>(_pointSize, Allocator.Temp);
+
+            //var pointsGenerationJob = new PointsGenerationJob()
+            //{
+            //    worldMatrix = worldMatrix,
+            //    pointSize = _pointSize,
+
+            //    distributionMode = distributionMode,
+
+            //    splineDistributionSetting = splineDistributionSetting,
+            //    linearDistributionSetting = linearDistributionSetting,
+            //    gridDistributionSetting = gridDistributionSetting,
+
+            //    points = pointsArray
+            //};
+
+            //var handle = pointsGenerationJob.ScheduleBatch(_pointSize, 64);
+            //handle.Complete();
+
+            //pointsArray.CopyTo(_points);
+            //pointsArray.Dispose();
 
             Parallel.For(0, _pointSize, i =>
             {
@@ -215,7 +237,7 @@ namespace Misaki.ArtTool
                         continue;
                     }
 
-                    effectors[e].effector.Operate(i, worldMatrix, _points, ref _points[i].matrix, ref _points[i].isValid);
+                    effectors[e].effector.Operate(i, worldMatrix, _points);
                 }
 
                 if (math.all(_points[i].matrix.GetScale() == float3.zero))
@@ -344,7 +366,7 @@ namespace Misaki.ArtTool
 
         public void Clear(bool isClearPoints = true, bool isClearObjects = true)
         {
-            if (isClearPoints)
+            if (isClearPoints && _points != null)
             {
                 _pointPool.Return(_points, true);
             }

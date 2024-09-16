@@ -56,7 +56,7 @@ namespace Misaki.ArtTool
             effectorMatrix = transform.localToWorldMatrix;
         }
 
-        public virtual void Operate(int index, float4x4 nodeWorldMatrix, ReadOnlySpan<PointData> points, ref float4x4 pointWorldMatrix, ref bool isValid)
+        public virtual void Operate(int index, float4x4 nodeWorldMatrix, Span<PointData> points)
         {
 
         }

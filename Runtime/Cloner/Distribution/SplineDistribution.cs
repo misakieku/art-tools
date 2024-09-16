@@ -5,10 +5,9 @@ namespace Misaki.ArtTool
 {
     public static partial class Distribution
     {
-        public static void SplineDistribution(int index, int pointSize, float splineLength, float4x4 splineWorldMatrix, SplineDistributionSetting setting, out float4x4 localMatrix, out bool isValid)
+        public static void SplineDistribution(int index, int pointSize, SplineDistributionSetting setting, out float4x4 localMatrix, out bool isValid)
         {
             var pointIndex = index + setting.indexOffset;
-
 
             if (pointIndex > pointSize)
             {
@@ -23,7 +22,7 @@ namespace Misaki.ArtTool
 
             if (setting.isSpacingMode)
             {
-                t = (pointIndex * setting.spacing) / splineLength;
+                t = (pointIndex * setting.spacing) / setting.splineLength;
             }
             else
             {
@@ -34,7 +33,7 @@ namespace Misaki.ArtTool
             {
                 var localRotation = quaternion.LookRotationSafe(normal, upVector);
 
-                localMatrix = math.mul(splineWorldMatrix, float4x4.TRS(position, localRotation, new float3(1.0f)));
+                localMatrix = math.mul(setting.splineWorldMatrix, float4x4.TRS(position, localRotation, new float3(1.0f)));
                 isValid = true;
             }
             else
