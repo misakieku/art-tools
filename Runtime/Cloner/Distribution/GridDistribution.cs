@@ -8,7 +8,7 @@ namespace Misaki.ArtTool
         {
             var random = Random.CreateFromIndex((uint)index);
 
-            var localPosition = GetCubePosition(index, setting.count) * setting.spacing;
+            var localPosition = ShapeHelper.GetCubePosition(index, setting.count) * setting.spacing;
 
             switch (setting.shape)
             {
@@ -17,13 +17,13 @@ namespace Misaki.ArtTool
                     break;
 
                 case GridShape.Sphere:
-                    var isInsideSphere = ShapeHelper.IsInsideSphere(localPosition, 0.0f, setting.count * setting.spacing);
+                    var isInsideSphere = ShapeHelper.IsPointInsideSphere(localPosition, 0.0f, setting.count * setting.spacing);
 
                     isValid = isInsideSphere;
                     break;
 
                 case GridShape.Cylinder:
-                    var isInsideCylinder = ShapeHelper.IsInsideCylinder(localPosition, 0.0f, setting.count * setting.spacing);
+                    var isInsideCylinder = ShapeHelper.IsPointInsideCylinder(localPosition, 0.0f, setting.count * setting.spacing);
                     isValid = isInsideCylinder;
                     break;
                 default:
@@ -37,19 +37,6 @@ namespace Misaki.ArtTool
             }
 
             localMatrix = float4x4.TRS(localPosition, quaternion.identity, new float3(1.0f));
-        }
-
-        private static float3 GetCubePosition(int index, int3 size)
-        {
-            float3 localPosition;
-            var yIndex = index / (size.x * size.z);
-            var remain = index % (size.x * size.z);
-            var zIndex = remain / size.x;
-            var xIndex = remain % size.x;
-
-            localPosition = new float3(xIndex, yIndex, zIndex);
-            localPosition -= (float3)(size - 1) * 0.5f;
-            return localPosition;
         }
     }
 }

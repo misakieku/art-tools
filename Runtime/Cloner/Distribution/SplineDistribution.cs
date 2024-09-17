@@ -17,7 +17,6 @@ namespace Misaki.ArtTool
                 return;
             }
 
-            var spline = setting.spline;
             float t;
 
             if (setting.isSpacingMode)
@@ -29,7 +28,7 @@ namespace Misaki.ArtTool
                 t = pointIndex / (float)(pointSize - 1);
             }
 
-            if (SplineUtility.Evaluate(spline.Spline, t, out var position, out var normal, out var upVector))
+            if (SplineUtility.Evaluate(setting.nativeSpline, t, out var position, out var normal, out var upVector))
             {
                 var localRotation = quaternion.LookRotationSafe(normal, upVector);
 

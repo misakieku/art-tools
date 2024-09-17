@@ -1,13 +1,14 @@
 using System;
-using UnityEngine;
 
 namespace Misaki.ArtTool
 {
     [Serializable]
     public struct ObjectDistributionSetting
     {
-        public MeshFilter meshFilter;
+        public MeshData meshData;
+        public ObjectDistributionMode mode;
         public int count;
+        public uint seed;
         public bool alignNormal;
     }
 }

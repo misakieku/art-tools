@@ -8,7 +8,7 @@ namespace Misaki.ArtTool
     [Serializable]
     public struct SplineDistributionSetting
     {
-        public SplineContainer spline;
+        public NativeSpline nativeSpline;
 
         public int indexOffset;
 
@@ -26,14 +26,9 @@ namespace Misaki.ArtTool
         {
             get
             {
-                if (spline == null)
-                {
-                    return 0;
-                }
-
                 if (isSpacingMode)
                 {
-                    return Mathf.FloorToInt(spline.CalculateLength() / spacing) + 1;
+                    return Mathf.FloorToInt(splineLength / spacing) + 1;
                 }
                 else
                 {

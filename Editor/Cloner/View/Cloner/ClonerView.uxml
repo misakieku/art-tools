@@ -49,9 +49,94 @@
         <engine:VisualElement style="flex-grow: 0;">
             <engine:Label text="Parameter" class="SubHeader" />
             <engine:VisualElement class="PropertyContainer" style="flex-grow: 0;">
-                <editor:PropertyField name="spline-parameter-property" binding-path="splineDistributionSetting" />
-                <editor:PropertyField name="linear-parameter-property" binding-path="linearDistributionSetting" />
-                <editor:PropertyField name="grid-parameter-property" binding-path="gridDistributionSetting" />
+                <engine:VisualElement name="spline-parameter" style="flex-grow: 1;">
+                    <editor:ObjectField label="Spline" type="UnityEngine.Splines.SplineContainer, Unity.Splines">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="inputSplineContainer" binding-mode="TwoWay" />
+                        </Bindings>
+                    </editor:ObjectField>
+                    <engine:IntegerField label="Index Offset" value="0">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="splineDistributionSetting.indexOffset" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:IntegerField>
+                    <engine:DropdownField label="Mode" choices="Count,Spacing" index="0">
+                        <Bindings>
+                            <engine:DataBinding property="index" data-source-path="splineDistributionSetting.isSpacingMode" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:DropdownField>
+                    <engine:UnsignedIntegerField label="Count" value="10">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="splineDistributionSetting.count" binding-mode="ToTarget" />
+                            <engine:DataBinding property="style.display" data-source-path="splineDistributionSetting.isSpacingMode" binding-mode="ToTarget" source-to-ui-converters="InverseBoolToDisplayConverter" />
+                        </Bindings>
+                    </engine:UnsignedIntegerField>
+                    <engine:FloatField label="Spacing" value="1">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="splineDistributionSetting.spacing" binding-mode="TwoWay" />
+                            <engine:DataBinding property="style.display" data-source-path="splineDistributionSetting.isSpacingMode" binding-mode="ToTarget" source-to-ui-converters="BoolToDisplayConvertor" />
+                        </Bindings>
+                    </engine:FloatField>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="distributionMode" binding-mode="ToTarget" source-to-ui-converters="SplineModeToDisplayStyleConverter" />
+                    </Bindings>
+                </engine:VisualElement>
+                <engine:VisualElement name="linear-parameter" style="flex-grow: 1;">
+                    <engine:UnsignedIntegerField label="Count" value="10">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.count" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:UnsignedIntegerField>
+                    <engine:IntegerField label="Index Offset" value="0">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.indexOffset" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:IntegerField>
+                    <engine:Vector3Field label="Position Spacing">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.positionSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <engine:Vector3Field label="Rotation Spacing">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.scaleSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <engine:Vector3Field label="Scale Spacing">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.scaleSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <engine:Vector3Field label="Step Rotation">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.stepRotation" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="distributionMode" binding-mode="ToTarget" source-to-ui-converters="LinearModeToDisplayStyleConverter" />
+                    </Bindings>
+                </engine:VisualElement>
+                <engine:VisualElement name="grid-parameter" style="flex-grow: 1;">
+                    <engine:Vector3IntField label="Count">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.count" binding-mode="TwoWay" source-to-ui-converters="int3ToVector3IntConverter" />
+                        </Bindings>
+                    </engine:Vector3IntField>
+                    <engine:Vector3Field label="Spacing">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.spacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:Vector3Field>
+                    <engine:EnumField label="Shape" value="Center" type="Misaki.ArtTool.GridShape, Misaki.ArtTool" />
+                    <engine:Slider label="Fill" value="1" high-value="1" show-input-field="true">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.fill" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:Slider>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="distributionMode" binding-mode="ToTarget" source-to-ui-converters="GridModeToDisplayStyleConverter" />
+                    </Bindings>
+                </engine:VisualElement>
             </engine:VisualElement>
         </engine:VisualElement>
         <engine:VisualElement>

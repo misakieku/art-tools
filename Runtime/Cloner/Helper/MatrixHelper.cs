@@ -31,7 +31,7 @@ namespace Misaki.ArtTool
             rotation = Quaternion.LookRotation(matrix.c2.xyz / scale.z, matrix.c1.xyz / scale.y);
         }
 
-        internal static void DecomposeMatrixListAsSpan(in IList<Matrix4x4> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
+        internal static void DecomposeMatrixListAsSpan(in List<Matrix4x4> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
         {
             if (matrixList.Count != positions.Length || matrixList.Count != rotations.Length || matrixList.Count != scales.Length)
             {

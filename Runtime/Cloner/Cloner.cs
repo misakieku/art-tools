@@ -3,10 +3,13 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Splines;
 using Random = Unity.Mathematics.Random;
 
 namespace Misaki.ArtTool
@@ -22,6 +25,9 @@ namespace Misaki.ArtTool
         public bool autoGenerate;
         public bool isRenderInstancing;
 
+        public MeshFilter inputMeshFilter;
+        public ObjectDistributionSetting objectDistributionSetting;
+        public SplineContainer inputSplineContainer;
         public SplineDistributionSetting splineDistributionSetting;
         public LinearDistributionSetting linearDistributionSetting;
         public GridDistributionSetting gridDistributionSetting;
@@ -128,22 +134,49 @@ namespace Misaki.ArtTool
             switch (distributionMode)
             {
                 case DistributionMode.Object:
+
+                    if (inputMeshFilter == null)
+                    {
+                        throw new NullReferenceException();
+                    }
+
+                    objectDistributionSetting.meshData = new(inputMeshFilter, Allocator.TempJob);
+
                     break;
                 case DistributionMode.Spline:
+
+                    if (inputSplineContainer == null)
+                    {
+                        throw new NullReferenceException();
+                    }
+
+                    splineDistributionSetting.splineWorldMatrix = inputSplineContainer.transform.localToWorldMatrix;
+                    splineDistributionSetting.nativeSpline = new(inputSplineContainer.Spline, Allocator.TempJob);
+                    splineDistributionSetting.splineLength = splineDistributionSetting.nativeSpline.CalculateLength(splineDistributionSetting.splineWorldMatrix);
+
                     _pointSize = splineDistributionSetting.DistributionCount;
                     break;
+
                 case DistributionMode.Linear:
                     _pointSize = (int)linearDistributionSetting.count;
                     break;
+
                 case DistributionMode.Grid:
                     _pointSize = gridDistributionSetting.DistributionCount;
                     break;
+
                 case DistributionMode.Radial:
                     break;
                 case DistributionMode.Honeycomb:
                     break;
                 default:
                     break;
+            }
+
+            // Allocate a empty native spline to avoid job error
+            if (distributionMode != DistributionMode.Spline)
+            {
+                splineDistributionSetting.nativeSpline = new(new List<BezierKnot>(), false, transform.localToWorldMatrix, Allocator.TempJob);
             }
 
             if (_pointSize == 0)
@@ -161,68 +194,66 @@ namespace Misaki.ArtTool
                 effectorData.effector.Initialize();
             }
 
-            if (distributionMode == DistributionMode.Spline && splineDistributionSetting.spline != null)
-            {
-                splineDistributionSetting.splineWorldMatrix = splineDistributionSetting.spline.transform.localToWorldMatrix;
-                splineDistributionSetting.splineLength = splineDistributionSetting.spline.CalculateLength();
-            }
-
             var worldMatrix = transform.localToWorldMatrix;
-            Parallel.For(0, _pointSize, i =>
-            //for (var i = 0; i < _pointSize; i++)
-            {
-                var pointMatrix = float4x4.identity;
-                var isValid = true;
-                switch (distributionMode)
-                {
-                    case DistributionMode.Object:
-                        break;
-                    case DistributionMode.Spline:
-                        Distribution.SplineDistribution(i, _pointSize, splineDistributionSetting, out pointMatrix, out isValid);
-                        break;
-                    case DistributionMode.Linear:
-                        Distribution.LinearDistribution(i, linearDistributionSetting, out pointMatrix, out isValid);
-                        break;
-                    case DistributionMode.Grid:
-                        Distribution.GridDistribution(i, gridDistributionSetting, out pointMatrix, out isValid);
-                        break;
-                    case DistributionMode.Radial:
-                        break;
-                    case DistributionMode.Honeycomb:
-                        break;
-                    default:
-                        break;
-                }
-
-                pointMatrix = math.mul(worldMatrix, pointMatrix);
-
-                _points[i].matrix = pointMatrix;
-                _points[i].isValid = isValid;
-                //}
-            });
-
-            //var pointsArray = new NativeArray<PointData>(_pointSize, Allocator.Temp);
-
-            //var pointsGenerationJob = new PointsGenerationJob()
+            //Parallel.For(0, _pointSize, i =>
+            ////for (var i = 0; i < _pointSize; i++)
             //{
-            //    worldMatrix = worldMatrix,
-            //    pointSize = _pointSize,
+            //    var pointMatrix = float4x4.identity;
+            //    var isValid = true;
+            //    switch (distributionMode)
+            //    {
+            //        case DistributionMode.Object:
+            //            break;
+            //        case DistributionMode.Spline:
+            //            Distribution.SplineDistribution(i, _pointSize, splineDistributionSetting, out pointMatrix, out isValid);
+            //            break;
+            //        case DistributionMode.Linear:
+            //            Distribution.LinearDistribution(i, linearDistributionSetting, out pointMatrix, out isValid);
+            //            break;
+            //        case DistributionMode.Grid:
+            //            Distribution.GridDistribution(i, gridDistributionSetting, out pointMatrix, out isValid);
+            //            break;
+            //        case DistributionMode.Radial:
+            //            break;
+            //        case DistributionMode.Honeycomb:
+            //            break;
+            //        default:
+            //            break;
+            //    }
 
-            //    distributionMode = distributionMode,
+            //    pointMatrix = math.mul(worldMatrix, pointMatrix);
 
-            //    splineDistributionSetting = splineDistributionSetting,
-            //    linearDistributionSetting = linearDistributionSetting,
-            //    gridDistributionSetting = gridDistributionSetting,
+            //    _points[i].matrix = pointMatrix;
+            //    _points[i].isValid = isValid;
+            //    //}
+            //});
 
-            //    points = pointsArray
-            //};
+            // Since NativeSpline is not available in managed thread, we have to use jobs
+            var pointsArray = new NativeArray<PointData>(_points.Length, Allocator.TempJob);
+            var pointsGenerationJob = new PointsGenerationJob()
+            {
+                worldMatrix = worldMatrix,
+                pointSize = _pointSize,
 
-            //var handle = pointsGenerationJob.ScheduleBatch(_pointSize, 64);
-            //handle.Complete();
+                distributionMode = distributionMode,
 
-            //pointsArray.CopyTo(_points);
-            //pointsArray.Dispose();
+                splineDistributionSetting = splineDistributionSetting,
+                linearDistributionSetting = linearDistributionSetting,
+                gridDistributionSetting = gridDistributionSetting,
 
+                points = pointsArray
+            };
+
+            var handle = pointsGenerationJob.Schedule(_pointSize, 64);
+            handle.Complete();
+
+            pointsArray.CopyTo(_points);
+
+            pointsArray.Dispose();
+            splineDistributionSetting.nativeSpline.Dispose();
+            objectDistributionSetting.meshData.Dispose();
+
+            // Switch to managed thread for effectors because of interface
             Parallel.For(0, _pointSize, i =>
             {
                 for (var e = 0; e < effectors.Count; e++)
