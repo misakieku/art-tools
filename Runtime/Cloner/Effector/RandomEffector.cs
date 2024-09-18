@@ -26,14 +26,14 @@ namespace Misaki.ArtTool
         public float3 scaleMinMax;
         public float uniformScaleMinMax;
 
-        public override void Operate(int index, float4x4 nodeWorldMatrix, Span<PointData> points)
+        public override PointData Operate(int index, float4x4 nodeWorldMatrix, ReadOnlySpan<PointData> points)
         {
+            var currentPoint = points[index];
+
             if (!isEnablePosition && !isEnableRotation && !isEnableScale)
             {
-                return;
+                return currentPoint;
             }
-
-            var currentPoint = points[index];
 
             Random random;
             if (synchronized)
@@ -57,7 +57,7 @@ namespace Misaki.ArtTool
             var weight = CalculateFieldsWeight(position);
             if (weight == 0)
             {
-                return;
+                return currentPoint;
             }
 
             if (isEnablePosition)
@@ -121,7 +121,7 @@ namespace Misaki.ArtTool
 
             currentPoint.matrix = float4x4.TRS(position, rotation, scale);
 
-            points[index] = currentPoint;
+            return currentPoint;
         }
     }
 }

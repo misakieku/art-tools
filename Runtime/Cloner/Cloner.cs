@@ -137,7 +137,7 @@ namespace Misaki.ArtTool
 
                     if (inputMeshFilter == null)
                     {
-                        throw new NullReferenceException();
+                        throw new NullReferenceException("You need to set the target mesh filter before using the object distribution mode");
                     }
 
                     objectDistributionSetting.meshData = new(inputMeshFilter, Allocator.TempJob);
@@ -147,7 +147,7 @@ namespace Misaki.ArtTool
 
                     if (inputSplineContainer == null)
                     {
-                        throw new NullReferenceException();
+                        throw new NullReferenceException("You need to set the target spline container before using the spline distribution mode");
                     }
 
                     splineDistributionSetting.splineWorldMatrix = inputSplineContainer.transform.localToWorldMatrix;
@@ -268,7 +268,7 @@ namespace Misaki.ArtTool
                         continue;
                     }
 
-                    effectors[e].effector.Operate(i, worldMatrix, _points);
+                    _points[i] = effectors[e].effector.Operate(i, worldMatrix, _points);
                 }
 
                 if (math.all(_points[i].matrix.GetScale() == float3.zero))

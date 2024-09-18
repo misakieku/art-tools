@@ -56,10 +56,7 @@ namespace Misaki.ArtTool
             effectorMatrix = transform.localToWorldMatrix;
         }
 
-        public virtual void Operate(int index, float4x4 nodeWorldMatrix, Span<PointData> points)
-        {
-
-        }
+        public abstract PointData Operate(int index, float4x4 nodeWorldMatrix, ReadOnlySpan<PointData> points);
 
         protected float CalculateFieldsWeight(float3 worldPosition)
         {
@@ -73,7 +70,8 @@ namespace Misaki.ArtTool
                     continue;
                 }
 
-                weight = math.lerp(weight, fieldData.field.Operate(worldPosition), fieldData.opacity);
+                //weight = math.lerp(weight, fieldData.field.Operate(worldPosition), fieldData.opacity);
+                weight = FieldHelper.BlendField(weight, fieldData.field.Operate(worldPosition), fieldData.opacity, fieldData.blending);
             }
 
             weight *= strength;

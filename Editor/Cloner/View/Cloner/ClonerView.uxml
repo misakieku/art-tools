@@ -127,7 +127,11 @@
                             <engine:DataBinding property="value" data-source-path="gridDistributionSetting.spacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
                         </Bindings>
                     </engine:Vector3Field>
-                    <engine:EnumField label="Shape" value="Center" type="Misaki.ArtTool.GridShape, Misaki.ArtTool" />
+                    <engine:EnumField label="Shape" value="Center" type="Misaki.ArtTool.GridShape, Misaki.ArtTool">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.shape" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:EnumField>
                     <engine:Slider label="Fill" value="1" high-value="1" show-input-field="true">
                         <Bindings>
                             <engine:DataBinding property="value" data-source-path="gridDistributionSetting.fill" binding-mode="TwoWay" />
