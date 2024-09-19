@@ -31,11 +31,26 @@ namespace Misaki.ArtTool
             rotation = Quaternion.LookRotation(matrix.c2.xyz / scale.z, matrix.c1.xyz / scale.y);
         }
 
-        internal static void DecomposeMatrixListAsSpan(in List<Matrix4x4> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
+        internal static void DecomposeMatrixToTransform(float4x4 matrix, Transform transform)
         {
-            if (matrixList.Count != positions.Length || matrixList.Count != rotations.Length || matrixList.Count != scales.Length)
+            var position = matrix.c3.xyz;
+            var scale = new Vector3(
+                math.length(matrix.c0.xyz),
+                math.length(matrix.c1.xyz),
+                math.length(matrix.c2.xyz)
+            );
+
+            var rotation = Quaternion.LookRotation(matrix.c2.xyz / scale.z, matrix.c1.xyz / scale.y);
+
+            transform.SetPositionAndRotation(position, rotation);
+            transform.localScale = scale;
+        }
+
+        internal static void DecomposeMatrixList(in List<Matrix4x4> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
+        {
+            if (matrixList.Count > positions.Length || matrixList.Count > rotations.Length || matrixList.Count > scales.Length)
             {
-                throw new ArgumentException("The length of the spans must match the number of matrices in the list.");
+                throw new ArgumentException("The length of the spans must be larger or equal to the number of matrices in the list.");
             }
 
             for (var i = 0; i < matrixList.Count; i++)
@@ -44,11 +59,24 @@ namespace Misaki.ArtTool
             }
         }
 
-        internal static void DecomposeMatrixListAsSpan(ReadOnlySpan<float4x4> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
+        internal static void DecomposeMatrixListToTransform(in List<Matrix4x4> matrixList, Span<Transform> transform)
         {
-            if (matrixList.Length != positions.Length || matrixList.Length != rotations.Length || matrixList.Length != scales.Length)
+            if (matrixList.Count > transform.Length)
             {
-                throw new ArgumentException("The length of the spans must match the number of matrices in the list.");
+                throw new ArgumentException("The length of the spans must be larger or equal to the number of matrices in the list.");
+            }
+
+            for (var i = 0; i < matrixList.Count; i++)
+            {
+                DecomposeMatrixToTransform(matrixList[i], transform[i]);
+            }
+        }
+
+        internal static void DecomposeMatrixList(ReadOnlySpan<float4x4> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
+        {
+            if (matrixList.Length > positions.Length || matrixList.Length > rotations.Length || matrixList.Length > scales.Length)
+            {
+                throw new ArgumentException("The length of the spans must be larger or equal to the number of matrices in the list.");
             }
 
             for (var i = 0; i < matrixList.Length; i++)
@@ -57,7 +85,7 @@ namespace Misaki.ArtTool
             }
         }
 
-        internal static void DecomposeMatrixListAsSpan(ReadOnlySpan<PointData> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
+        internal static void DecomposeMatrixList(ReadOnlySpan<PointData> matrixList, Span<Vector3> positions, Span<Quaternion> rotations, Span<Vector3> scales)
         {
             if (matrixList.Length != positions.Length || matrixList.Length != rotations.Length || matrixList.Length != scales.Length)
             {

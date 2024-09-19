@@ -8,8 +8,10 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Jobs;
 using UnityEngine.Rendering;
 using UnityEngine.Splines;
+using Object = UnityEngine.Object;
 using Random = Unity.Mathematics.Random;
 
 namespace Misaki.ArtTool
@@ -37,15 +39,16 @@ namespace Misaki.ArtTool
         public DebugMode debugMode;
 
         private static readonly ArrayPool<PointData> _pointPool = ArrayPool<PointData>.Shared;
+        private static readonly ArrayPool<int> _intPool = ArrayPool<int>.Shared;
 
         private int _pointSize;
         private PointData[] _points;
-        private List<GameObject> _instantiateObjects = new();
+        private int[] _instantiateObjects;
         private readonly Dictionary<int, List<Matrix4x4>> _objectGroup = new();
 
         private bool _isPointsDirty = false;
 
-        private const float GIZMOS_LINE_BASE_LENGTH = 0.5f;
+        private const float GIZMOS_BASE_SIZE = 0.5f;
 
         private void OnEnable()
         {
@@ -59,11 +62,11 @@ namespace Misaki.ArtTool
                 item.effector.propertyChanged += OnPropertyChanged;
             }
 
-            if (transform.childCount > 0 && _instantiateObjects.Count == 0)
+            if (transform.childCount > 0 && _instantiateObjects.Length == 0)
             {
                 for (var i = 0; i < transform.childCount; i++)
                 {
-                    _instantiateObjects.Add(transform.GetChild(i).gameObject);
+                    _instantiateObjects[i] = transform.GetChild(i).GetInstanceID();
                 }
             }
         }
@@ -287,22 +290,7 @@ namespace Misaki.ArtTool
                 return;
             }
 
-            if (_instantiateObjects.Count > 0)
-            {
-                for (var i = 0; i < _instantiateObjects.Count; i++)
-                {
-                    if (_instantiateObjects[i] == null)
-                    {
-                        continue;
-                    }
-
-#if UNITY_EDITOR
-                    DestroyImmediate(_instantiateObjects[i]);
-#else
-                    Destroy(child.gameObject);
-#endif
-                }
-            }
+            Clear(false, true);
 
             if (isRandomDistribution)
             {
@@ -366,32 +354,45 @@ namespace Misaki.ArtTool
                 }
             }
 
+            currentIndex = 0;
             if (!isRenderInstancing)
             {
+                if (_instantiateObjects != null)
+                {
+                    _intPool.Return(_instantiateObjects, true);
+                }
+
+                _instantiateObjects = _intPool.Rent(_pointSize);
+
+                using var transformAccess = new TransformAccessArray(_pointSize);
+                using var pointsList = new NativeList<float4x4>(_pointSize, Allocator.TempJob);
+
                 foreach (var item in _objectGroup)
                 {
-                    Span<Vector3> positionsSpan = stackalloc Vector3[item.Value.Count];
-                    Span<Quaternion> rotationsSpan = stackalloc Quaternion[item.Value.Count];
-                    var scaleArray = new Vector3[item.Value.Count];
+                    var instantiateCount = item.Value.Count;
 
-                    MatrixHelper.DecomposeMatrixListAsSpan(item.Value,
-                        positionsSpan, rotationsSpan, scaleArray);
+                    using var instanceIDs = new NativeArray<int>(instantiateCount, Allocator.TempJob);
+                    using var transformIDs = new NativeArray<int>(instantiateCount, Allocator.TempJob);
 
-                    var iop = InstantiateAsync(
-                        inputObjects[item.Key].gameObject, item.Value.Count,
-                        transform, positionsSpan, rotationsSpan);
+                    GameObject.InstantiateGameObjects(inputObjects[item.Key].gameObject.GetInstanceID(), instantiateCount, instanceIDs, transformIDs);
 
-                    iop.completed += (op) =>
+                    for (var i = 0; i < instantiateCount; i++)
                     {
-                        var instantiatedObjects = iop.GetAwaiter().GetResult();
-                        for (var i = 0; i < instantiatedObjects.Length; i++)
-                        {
-                            var instantiatedObject = instantiatedObjects[i];
-                            instantiatedObject.transform.localScale = scaleArray[i];
-                            _instantiateObjects.Add(instantiatedObject);
-                        }
-                    };
+                        transformAccess.Add(transformIDs[i]);
+                        pointsList.Add(item.Value[i]);
+
+                        _instantiateObjects[currentIndex] = instanceIDs[i];
+                        currentIndex++;
+                    }
                 }
+
+                var transformAccessJob = new TransformAccessJob()
+                {
+                    points = pointsList
+                };
+
+                var handle = transformAccessJob.Schedule(transformAccess);
+                handle.Complete();
             }
         }
 
@@ -400,30 +401,34 @@ namespace Misaki.ArtTool
             if (isClearPoints && _points != null)
             {
                 _pointPool.Return(_points, true);
+                _pointSize = 0;
             }
 
             if (isClearObjects)
             {
                 _objectGroup.Clear();
 
-                if (_instantiateObjects.Count <= 0)
+                if (_instantiateObjects == null || _instantiateObjects.Length <= 0 || _pointSize <= 0)
                 {
                     return;
                 }
 
-                for (var i = 0; i < _instantiateObjects.Count; i++)
-                {
-                    if (_instantiateObjects[i] == null)
-                    {
-                        continue;
-                    }
+                var objectList = ListPool<Object>.Get();
+                using var idArray = new NativeArray<int>(_instantiateObjects.Length, Allocator.TempJob);
+                idArray.CopyFrom(_instantiateObjects);
 
+                Resources.InstanceIDToObjectList(idArray, objectList);
+                for (var i = 0; i < objectList.Count; i++)
+                {
 #if UNITY_EDITOR
-                    DestroyImmediate(_instantiateObjects[i]);
+                    DestroyImmediate(objectList[i]);
 #else
                     Destroy(child.gameObject);
 #endif
                 }
+
+                ListPool<Object>.Release(objectList);
+                _intPool.Return(_instantiateObjects, true);
             }
         }
 
@@ -453,15 +458,15 @@ namespace Misaki.ArtTool
 
                         // Draw the x-axis in red
                         Gizmos.color = Color.red;
-                        Gizmos.DrawLine(Vector3.zero, Vector3.right * scale * GIZMOS_LINE_BASE_LENGTH);
+                        Gizmos.DrawLine(Vector3.zero, Vector3.right * scale * GIZMOS_BASE_SIZE);
 
                         // Draw the y-axis in green
                         Gizmos.color = Color.green;
-                        Gizmos.DrawLine(Vector3.zero, Vector3.up * scale * GIZMOS_LINE_BASE_LENGTH);
+                        Gizmos.DrawLine(Vector3.zero, Vector3.up * scale * GIZMOS_BASE_SIZE);
 
                         // Draw the z-axis in blue
                         Gizmos.color = Color.blue;
-                        Gizmos.DrawLine(Vector3.zero, Vector3.forward * scale * GIZMOS_LINE_BASE_LENGTH);
+                        Gizmos.DrawLine(Vector3.zero, Vector3.forward * scale * GIZMOS_BASE_SIZE);
                         break;
 
                     case DebugMode.Index:
@@ -485,7 +490,7 @@ namespace Misaki.ArtTool
                             Gizmos.color = Color.red;
                         }
 
-                        Gizmos.DrawSphere(point.matrix.c3.xyz, GIZMOS_LINE_BASE_LENGTH / 2.0f);
+                        Gizmos.DrawSphere(point.matrix.c3.xyz, GIZMOS_BASE_SIZE / 2.0f);
                         break;
 
                     default:
