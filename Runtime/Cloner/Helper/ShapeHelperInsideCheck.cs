@@ -41,15 +41,17 @@ namespace Misaki.ArtTool
             return withinRadius && withinHeight;
         }
 
-        internal static bool IsPointInsideMesh(float3 pointPosition, float3 meshPosition, MeshData meshData)
+        internal static bool IsPointInsideMesh(float3 pointPosition, ref MeshData meshData)
         {
             var windingNumber = 0;
+            var meshScale = meshData.worldMatrix.GetScale();
+            var meshPosition = meshData.worldMatrix.c3.xyz;
 
             for (var i = 0; i < meshData.triangles.Length; i += 3)
             {
-                var v1 = meshData.vertices[meshData.triangles[i]];
-                var v2 = meshData.vertices[meshData.triangles[i + 1]];
-                var v3 = meshData.vertices[meshData.triangles[i + 2]];
+                var v1 = meshData.vertices[meshData.triangles[i]] * meshScale + meshPosition;
+                var v2 = meshData.vertices[meshData.triangles[i + 1]] * meshScale + meshPosition;
+                var v3 = meshData.vertices[meshData.triangles[i + 2]] * meshScale + meshPosition;
 
                 if (IsPointInsideTriangle(pointPosition, v1, v2, v3))
                 {
@@ -57,9 +59,10 @@ namespace Misaki.ArtTool
                 }
             }
 
-            return windingNumber % 2 != 0;
+            return windingNumber % 2 == 0;
         }
 
+        //TODO: Fix it
         private static bool IsPointInsideTriangle(float3 point, float3 a, float3 b, float3 c)
         {
             var v0 = c - a;
@@ -76,7 +79,7 @@ namespace Misaki.ArtTool
             var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
             var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
-            return (u >= 0) && (v >= 0) && (u + v < 1.0f);
+            return (u >= 0) && (v >= 0) && (u + v < 1);
         }
     }
 }

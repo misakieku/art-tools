@@ -49,6 +49,36 @@
         <engine:VisualElement style="flex-grow: 0;">
             <engine:Label text="Parameter" class="SubHeader" />
             <engine:VisualElement class="PropertyContainer" style="flex-grow: 0;">
+                <engine:VisualElement name="object-parameter" style="flex-grow: 1;">
+                    <editor:ObjectField label="Mesh Filter" type="UnityEngine.MeshFilter, UnityEngine.CoreModule">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="inputMeshFilter" binding-mode="TwoWay" />
+                        </Bindings>
+                    </editor:ObjectField>
+                    <engine:EnumField label="Mode" value="Center" type="Misaki.ArtTool.ObjectDistributionMode, Misaki.ArtTool">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="objectDistributionSetting.mode" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:EnumField>
+                    <engine:UnsignedIntegerField label="Count" value="10">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="objectDistributionSetting.count" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:UnsignedIntegerField>
+                    <engine:UnsignedIntegerField label="Seed" value="123456">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="objectDistributionSetting.seed" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:UnsignedIntegerField>
+                    <engine:DropdownField label="Align Normal" choices="Disable,Enable" index="0">
+                        <Bindings>
+                            <engine:DataBinding property="index" data-source-path="objectDistributionSetting.alignNormal" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:DropdownField>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="distributionMode" binding-mode="ToTarget" source-to-ui-converters="ObjectModeToDisplayStyleConverter" />
+                    </Bindings>
+                </engine:VisualElement>
                 <engine:VisualElement name="spline-parameter" style="flex-grow: 1;">
                     <editor:ObjectField label="Spline" type="UnityEngine.Splines.SplineContainer, Unity.Splines">
                         <Bindings>

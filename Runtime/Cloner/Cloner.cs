@@ -9,6 +9,7 @@ using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Jobs;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Splines;
 using Object = UnityEngine.Object;
@@ -48,7 +49,7 @@ namespace Misaki.ArtTool
 
         private bool _isPointsDirty = false;
 
-        private const float GIZMOS_BASE_SIZE = 0.5f;
+        private const float GIZMOS_BASE_SIZE = 0.25f;
 
         private void OnEnable()
         {
@@ -132,6 +133,8 @@ namespace Misaki.ArtTool
 
         public void GeneratePoints()
         {
+            Profiler.BeginSample("GeneratePoints");
+
             Clear();
 
             switch (distributionMode)
@@ -144,6 +147,7 @@ namespace Misaki.ArtTool
                     }
 
                     objectDistributionSetting.meshData = new(inputMeshFilter, Allocator.TempJob);
+                    _pointSize = objectDistributionSetting.DistributionCount;
 
                     break;
                 case DistributionMode.Spline:
@@ -176,21 +180,15 @@ namespace Misaki.ArtTool
                     break;
             }
 
-            // Allocate a empty native spline to avoid job error
-            if (distributionMode != DistributionMode.Spline)
-            {
-                splineDistributionSetting.nativeSpline = new(new List<BezierKnot>(), false, transform.localToWorldMatrix, Allocator.TempJob);
-            }
+            // Allocate a empty native collection to avoid job error
+            EnsureNativeCollectionValid();
 
             if (_pointSize == 0)
             {
                 return;
             }
 
-            if (_points == null || _pointSize > _points.Length)
-            {
-                _points = _pointPool.Rent(_pointSize);
-            }
+            _points = _pointPool.Rent(_pointSize);
 
             foreach (var effectorData in effectors)
             {
@@ -198,38 +196,6 @@ namespace Misaki.ArtTool
             }
 
             var worldMatrix = transform.localToWorldMatrix;
-            //Parallel.For(0, _pointSize, i =>
-            ////for (var i = 0; i < _pointSize; i++)
-            //{
-            //    var pointMatrix = float4x4.identity;
-            //    var isValid = true;
-            //    switch (distributionMode)
-            //    {
-            //        case DistributionMode.Object:
-            //            break;
-            //        case DistributionMode.Spline:
-            //            Distribution.SplineDistribution(i, _pointSize, splineDistributionSetting, out pointMatrix, out isValid);
-            //            break;
-            //        case DistributionMode.Linear:
-            //            Distribution.LinearDistribution(i, linearDistributionSetting, out pointMatrix, out isValid);
-            //            break;
-            //        case DistributionMode.Grid:
-            //            Distribution.GridDistribution(i, gridDistributionSetting, out pointMatrix, out isValid);
-            //            break;
-            //        case DistributionMode.Radial:
-            //            break;
-            //        case DistributionMode.Honeycomb:
-            //            break;
-            //        default:
-            //            break;
-            //    }
-
-            //    pointMatrix = math.mul(worldMatrix, pointMatrix);
-
-            //    _points[i].matrix = pointMatrix;
-            //    _points[i].isValid = isValid;
-            //    //}
-            //});
 
             // Since NativeSpline is not available in managed thread, we have to use jobs
             var pointsArray = new NativeArray<PointData>(_points.Length, Allocator.TempJob);
@@ -240,6 +206,7 @@ namespace Misaki.ArtTool
 
                 distributionMode = distributionMode,
 
+                objectDistributionSetting = objectDistributionSetting,
                 splineDistributionSetting = splineDistributionSetting,
                 linearDistributionSetting = linearDistributionSetting,
                 gridDistributionSetting = gridDistributionSetting,
@@ -259,7 +226,7 @@ namespace Misaki.ArtTool
             // Switch to managed thread for effectors because of interface
             Parallel.For(0, _pointSize, i =>
             {
-                for (var e = 0; e < effectors.Count; e++)
+                for (var e = effectors.Count - 1; e >= 0; e--)
                 {
                     if (!effectors[e].enable)
                     {
@@ -281,6 +248,21 @@ namespace Misaki.ArtTool
             });
 
             _isPointsDirty = false;
+
+            Profiler.EndSample();
+        }
+
+        private void EnsureNativeCollectionValid()
+        {
+            if (distributionMode != DistributionMode.Spline)
+            {
+                splineDistributionSetting.nativeSpline = new(new List<BezierKnot>(), false, transform.localToWorldMatrix, Allocator.TempJob);
+            }
+
+            if (distributionMode != DistributionMode.Object)
+            {
+                objectDistributionSetting.meshData = new MeshData(Allocator.TempJob);
+            }
         }
 
         public void InstantiateGameObjectOnPoints()

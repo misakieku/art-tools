@@ -52,5 +52,19 @@ namespace Misaki.ArtTool
 
             return result;
         }
+
+        public static float ApplyRemapping(float weight, ref RemappingSetting remappingSetting)
+        {
+            if (!remappingSetting.enable)
+            {
+                return weight;
+            }
+
+            weight = math.saturate(weight / (1.0f - remappingSetting.innerOffset));
+            weight = math.lerp(remappingSetting.min, remappingSetting.max, weight);
+            weight = remappingSetting.invert ? 1.0f - weight : weight;
+            weight *= remappingSetting.strength;
+            return weight;
+        }
     }
 }

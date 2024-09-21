@@ -1,9 +1,11 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine.Jobs;
 
 namespace Misaki.ArtTool
 {
+    [BurstCompile]
     public struct TransformAccessJob : IJobParallelForTransform
     {
         [ReadOnly]

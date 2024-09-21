@@ -8,13 +8,32 @@ namespace Misaki.ArtTool
     public struct MeshData : IDisposable
     {
         public Bounds bounds;
+
+        [ReadOnly]
         public NativeArray<int> triangles;
-        public NativeArray<float4> tangents;
+        [ReadOnly]
+        public NativeArray<float3> normals;
+        [ReadOnly]
         public NativeArray<float3> vertices;
+        [ReadOnly]
         public NativeList<int2> edges;
+
         public int vertexCount;
 
         public float4x4 worldMatrix;
+
+        public MeshData(Allocator allocator)
+        {
+            bounds = default;
+
+            triangles = new(0, allocator);
+            normals = new(0, allocator);
+            vertices = new(0, allocator);
+            edges = new(0, allocator);
+
+            vertexCount = 0;
+            worldMatrix = float4x4.identity;
+        }
 
         public MeshData(MeshFilter meshFilter, Allocator allocator)
         {
@@ -28,10 +47,10 @@ namespace Misaki.ArtTool
                 triangles[i] = mesh.triangles[i];
             }
 
-            tangents = new(mesh.tangents.Length, allocator);
-            for (var i = 0; i < tangents.Length; i++)
+            normals = new(mesh.tangents.Length, allocator);
+            for (var i = 0; i < normals.Length; i++)
             {
-                tangents[i] = mesh.tangents[i];
+                normals[i] = mesh.normals[i];
             }
 
             vertices = new(mesh.vertices.Length, allocator);
@@ -68,7 +87,7 @@ namespace Misaki.ArtTool
         public void Dispose()
         {
             triangles.Dispose();
-            tangents.Dispose();
+            normals.Dispose();
             vertices.Dispose();
             edges.Dispose();
         }

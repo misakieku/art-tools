@@ -48,8 +48,15 @@ namespace Misaki.ArtTool
 
         public virtual void Initialize()
         {
-            for (var i = 0; i < fieldDataList.Count; i++)
+            var fieldCount = fieldDataList.Count;
+            for (var i = fieldCount - 1; i >= 0; i--)
             {
+                var fieldData = fieldDataList[i];
+                if (fieldData.field == null || !fieldData.enable || fieldData.opacity <= 0.0f)
+                {
+                    continue;
+                }
+
                 fieldDataList[i].field.Initialize();
             }
 
@@ -62,16 +69,16 @@ namespace Misaki.ArtTool
         {
             var weight = 1.0f;
             var fieldCount = fieldDataList.Count;
-            for (var i = 0; i < fieldCount; i++)
+            for (var i = fieldCount - 1; i >= 0; i--)
             {
                 var fieldData = fieldDataList[i];
-                if (!fieldData.enable || fieldData.opacity <= 0.0f)
+                if (fieldData.field == null || !fieldData.enable || fieldData.opacity <= 0.0f)
                 {
                     continue;
                 }
 
-                //weight = math.lerp(weight, fieldData.field.Operate(worldPosition), fieldData.opacity);
-                weight = FieldHelper.BlendField(weight, fieldData.field.Operate(worldPosition), fieldData.opacity, fieldData.blending);
+                var bValue = fieldData.field.Operate(worldPosition, weight);
+                weight = FieldHelper.BlendField(weight, bValue, fieldData.opacity, fieldData.blending);
             }
 
             weight *= strength;

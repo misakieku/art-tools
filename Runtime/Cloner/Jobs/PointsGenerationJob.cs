@@ -1,11 +1,11 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Misaki.ArtTool
 {
-    [ExecuteInEditMode]
+    [BurstCompile]
     public struct PointsGenerationJob : IJobParallelForBatch
     {
         public float4x4 worldMatrix;
@@ -13,6 +13,7 @@ namespace Misaki.ArtTool
 
         public DistributionMode distributionMode;
 
+        public ObjectDistributionSetting objectDistributionSetting;
         public SplineDistributionSetting splineDistributionSetting;
         public LinearDistributionSetting linearDistributionSetting;
         public GridDistributionSetting gridDistributionSetting;
@@ -29,6 +30,7 @@ namespace Misaki.ArtTool
                 switch (distributionMode)
                 {
                     case DistributionMode.Object:
+                        Distribution.ObjectDistribution(i, objectDistributionSetting, out pointMatrix, out isValid);
                         break;
                     case DistributionMode.Spline:
                         Distribution.SplineDistribution(i, pointSize, splineDistributionSetting, out pointMatrix, out isValid);

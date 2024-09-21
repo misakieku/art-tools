@@ -6,6 +6,8 @@ namespace Misaki.ArtTool
     [ExecuteInEditMode]
     public class LinearField : FieldBase
     {
+        public RemappingSetting remappingSetting = new();
+
         public float length = 1.0f;
 
         private float3 fieldForward;
@@ -17,13 +19,13 @@ namespace Misaki.ArtTool
             fieldPosition = transform.position;
         }
 
-        public override float Operate(float3 position)
+        public override float Operate(float3 position, float weight)
         {
             var plane = new Unity.Mathematics.Geometry.Plane(fieldForward, fieldPosition);
             var distance = plane.SignedDistanceToPoint(position) / length;
-            var weight = math.saturate(distance / 2.0f + 0.5f);
 
-            weight = Remapping(weight);
+            weight = math.saturate(distance / 2.0f + 0.5f);
+            weight = FieldHelper.ApplyRemapping(weight, ref remappingSetting);
 
             return weight;
         }
