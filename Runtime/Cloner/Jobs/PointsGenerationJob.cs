@@ -17,6 +17,7 @@ namespace Misaki.ArtTool
         public SplineDistributionSetting splineDistributionSetting;
         public LinearDistributionSetting linearDistributionSetting;
         public GridDistributionSetting gridDistributionSetting;
+        public RadialDistributionSetting radialDistributionSetting;
 
         [WriteOnly]
         public NativeArray<PointData> points;
@@ -30,7 +31,7 @@ namespace Misaki.ArtTool
                 switch (distributionMode)
                 {
                     case DistributionMode.Object:
-                        Distribution.ObjectDistribution(i, objectDistributionSetting, out pointMatrix, out isValid);
+                        Distribution.ObjectDistribution(i, ref objectDistributionSetting, out pointMatrix, out isValid);
                         break;
                     case DistributionMode.Spline:
                         Distribution.SplineDistribution(i, pointSize, splineDistributionSetting, out pointMatrix, out isValid);
@@ -42,6 +43,7 @@ namespace Misaki.ArtTool
                         Distribution.GridDistribution(i, gridDistributionSetting, out pointMatrix, out isValid);
                         break;
                     case DistributionMode.Radial:
+                        Distribution.RadialDistribution(i, radialDistributionSetting, out pointMatrix, out isValid);
                         break;
                     case DistributionMode.Honeycomb:
                         break;

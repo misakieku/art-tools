@@ -9,10 +9,8 @@ using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Jobs;
-using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Splines;
-using Object = UnityEngine.Object;
 using Random = Unity.Mathematics.Random;
 
 namespace Misaki.ArtTool
@@ -30,26 +28,38 @@ namespace Misaki.ArtTool
 
         public MeshFilter inputMeshFilter;
         public ObjectDistributionSetting objectDistributionSetting;
+
         public SplineContainer inputSplineContainer;
         public SplineDistributionSetting splineDistributionSetting;
+
         public LinearDistributionSetting linearDistributionSetting;
+
         public GridDistributionSetting gridDistributionSetting;
 
-        public List<EffectorData> effectors;
+        public RadialDistributionSetting radialDistributionSetting;
+
+        public List<EffectorData> effectors = new();
 
         public DebugMode debugMode;
+        public float gizmosSize = 0.25f;
 
         private static readonly ArrayPool<PointData> _pointPool = ArrayPool<PointData>.Shared;
-        private static readonly ArrayPool<int> _intPool = ArrayPool<int>.Shared;
 
-        private int _pointSize;
+        public int pointSize;
         private PointData[] _points;
-        private int[] _instantiateObjects;
+        private List<GameObject> _instantiateObjects = new();
         private readonly Dictionary<int, List<Matrix4x4>> _objectGroup = new();
 
         private bool _isPointsDirty = false;
 
-        private const float GIZMOS_BASE_SIZE = 0.25f;
+        [MenuItem("GameObject/Cloner/Cloner Object")]
+        public static void CreateCloner()
+        {
+            var clonerObject = new GameObject("Cloner");
+            GameObjectUtility.EnsureUniqueNameForSibling(clonerObject);
+
+            clonerObject.AddComponent<Cloner>();
+        }
 
         private void OnEnable()
         {
@@ -63,11 +73,11 @@ namespace Misaki.ArtTool
                 item.effector.propertyChanged += OnPropertyChanged;
             }
 
-            if (transform.childCount > 0 && _instantiateObjects.Length == 0)
+            if (transform.childCount > 0 && _instantiateObjects.Count == 0)
             {
                 for (var i = 0; i < transform.childCount; i++)
                 {
-                    _instantiateObjects[i] = transform.GetChild(i).GetInstanceID();
+                    _instantiateObjects[i] = transform.GetChild(i).gameObject;
                 }
             }
         }
@@ -127,14 +137,12 @@ namespace Misaki.ArtTool
                 {
                     shadowCastingMode = ShadowCastingMode.On
                 };
-                Graphics.RenderMeshInstanced(renderParams, objectData.Mesh, 0, item.Value, _pointSize);
+                Graphics.RenderMeshInstanced(renderParams, objectData.Mesh, 0, item.Value, pointSize);
             }
         }
 
         public void GeneratePoints()
         {
-            Profiler.BeginSample("GeneratePoints");
-
             Clear();
 
             switch (distributionMode)
@@ -147,7 +155,7 @@ namespace Misaki.ArtTool
                     }
 
                     objectDistributionSetting.meshData = new(inputMeshFilter, Allocator.TempJob);
-                    _pointSize = objectDistributionSetting.DistributionCount;
+                    pointSize = objectDistributionSetting.DistributionCount;
 
                     break;
                 case DistributionMode.Spline:
@@ -161,18 +169,19 @@ namespace Misaki.ArtTool
                     splineDistributionSetting.nativeSpline = new(inputSplineContainer.Spline, Allocator.TempJob);
                     splineDistributionSetting.splineLength = splineDistributionSetting.nativeSpline.CalculateLength(splineDistributionSetting.splineWorldMatrix);
 
-                    _pointSize = splineDistributionSetting.DistributionCount;
+                    pointSize = splineDistributionSetting.DistributionCount;
                     break;
 
                 case DistributionMode.Linear:
-                    _pointSize = (int)linearDistributionSetting.count;
+                    pointSize = (int)linearDistributionSetting.count;
                     break;
 
                 case DistributionMode.Grid:
-                    _pointSize = gridDistributionSetting.DistributionCount;
+                    pointSize = gridDistributionSetting.DistributionCount;
                     break;
 
                 case DistributionMode.Radial:
+                    pointSize = (int)radialDistributionSetting.count;
                     break;
                 case DistributionMode.Honeycomb:
                     break;
@@ -183,12 +192,12 @@ namespace Misaki.ArtTool
             // Allocate a empty native collection to avoid job error
             EnsureNativeCollectionValid();
 
-            if (_pointSize == 0)
+            if (pointSize == 0)
             {
                 return;
             }
 
-            _points = _pointPool.Rent(_pointSize);
+            _points = _pointPool.Rent(pointSize);
 
             foreach (var effectorData in effectors)
             {
@@ -202,7 +211,7 @@ namespace Misaki.ArtTool
             var pointsGenerationJob = new PointsGenerationJob()
             {
                 worldMatrix = worldMatrix,
-                pointSize = _pointSize,
+                pointSize = pointSize,
 
                 distributionMode = distributionMode,
 
@@ -210,11 +219,12 @@ namespace Misaki.ArtTool
                 splineDistributionSetting = splineDistributionSetting,
                 linearDistributionSetting = linearDistributionSetting,
                 gridDistributionSetting = gridDistributionSetting,
+                radialDistributionSetting = radialDistributionSetting,
 
                 points = pointsArray
             };
 
-            var handle = pointsGenerationJob.Schedule(_pointSize, 64);
+            var handle = pointsGenerationJob.Schedule(pointSize, 64);
             handle.Complete();
 
             pointsArray.CopyTo(_points);
@@ -224,16 +234,11 @@ namespace Misaki.ArtTool
             objectDistributionSetting.meshData.Dispose();
 
             // Switch to managed thread for effectors because of interface
-            Parallel.For(0, _pointSize, i =>
+            Parallel.For(0, pointSize, i =>
             {
                 for (var e = effectors.Count - 1; e >= 0; e--)
                 {
-                    if (!effectors[e].enable)
-                    {
-                        continue;
-                    }
-
-                    if (effectors[e].effector == null)
+                    if (!effectors[e].enable || effectors[e].effector == null)
                     {
                         continue;
                     }
@@ -248,8 +253,6 @@ namespace Misaki.ArtTool
             });
 
             _isPointsDirty = false;
-
-            Profiler.EndSample();
         }
 
         private void EnsureNativeCollectionValid()
@@ -267,7 +270,7 @@ namespace Misaki.ArtTool
 
         public void InstantiateGameObjectOnPoints()
         {
-            if (_points == null && _pointSize <= 0)
+            if (_points == null && pointSize <= 0)
             {
                 return;
             }
@@ -278,7 +281,7 @@ namespace Misaki.ArtTool
             {
                 // Use Fisher-Yates Shuffle algorithm to swap value
                 var random = new Random(seed);
-                for (var i = _pointSize - 1; i > 0; i--)
+                for (var i = pointSize - 1; i > 0; i--)
                 {
                     var k = random.NextInt(0, i + 1);
                     (_points[i], _points[k]) = (_points[k], _points[i]);
@@ -292,7 +295,7 @@ namespace Misaki.ArtTool
 
             var currentIndex = 0;
             var objectIndex = 0;
-            while (currentIndex < _pointSize)
+            while (currentIndex < pointSize)
             {
                 if (!_points[currentIndex].isValid)
                 {
@@ -318,7 +321,7 @@ namespace Misaki.ArtTool
                     _objectGroup[objectIndex].Add(_points[currentIndex].matrix);
                     currentIndex++;
 
-                    if (currentIndex >= _pointSize)
+                    if (currentIndex >= pointSize)
                     {
                         break;
                     }
@@ -339,22 +342,17 @@ namespace Misaki.ArtTool
             currentIndex = 0;
             if (!isRenderInstancing)
             {
-                if (_instantiateObjects != null)
-                {
-                    _intPool.Return(_instantiateObjects, true);
-                }
+                _instantiateObjects.Capacity = pointSize;
 
-                _instantiateObjects = _intPool.Rent(_pointSize);
-
-                using var transformAccess = new TransformAccessArray(_pointSize);
-                using var pointsList = new NativeList<float4x4>(_pointSize, Allocator.TempJob);
+                var transformAccess = new TransformAccessArray(pointSize);
+                var pointsList = new NativeList<float4x4>(pointSize, Allocator.TempJob);
 
                 foreach (var item in _objectGroup)
                 {
                     var instantiateCount = item.Value.Count;
 
-                    using var instanceIDs = new NativeArray<int>(instantiateCount, Allocator.TempJob);
-                    using var transformIDs = new NativeArray<int>(instantiateCount, Allocator.TempJob);
+                    var instanceIDs = new NativeArray<int>(instantiateCount, Allocator.TempJob);
+                    var transformIDs = new NativeArray<int>(instantiateCount, Allocator.TempJob);
 
                     GameObject.InstantiateGameObjects(inputObjects[item.Key].gameObject.GetInstanceID(), instantiateCount, instanceIDs, transformIDs);
 
@@ -363,9 +361,15 @@ namespace Misaki.ArtTool
                         transformAccess.Add(transformIDs[i]);
                         pointsList.Add(item.Value[i]);
 
-                        _instantiateObjects[currentIndex] = instanceIDs[i];
+                        var instantiateObject = (GameObject)Resources.InstanceIDToObject(instanceIDs[i]);
+                        instantiateObject.transform.parent = this.transform;
+                        _instantiateObjects.Add(instantiateObject);
+
                         currentIndex++;
                     }
+
+                    instanceIDs.Dispose();
+                    transformIDs.Dispose();
                 }
 
                 var transformAccessJob = new TransformAccessJob()
@@ -375,6 +379,9 @@ namespace Misaki.ArtTool
 
                 var handle = transformAccessJob.Schedule(transformAccess);
                 handle.Complete();
+
+                transformAccess.Dispose();
+                pointsList.Dispose();
             }
         }
 
@@ -383,45 +390,38 @@ namespace Misaki.ArtTool
             if (isClearPoints && _points != null)
             {
                 _pointPool.Return(_points, true);
-                _pointSize = 0;
+                pointSize = 0;
             }
 
             if (isClearObjects)
             {
-                _objectGroup.Clear();
-
-                if (_instantiateObjects == null || _instantiateObjects.Length <= 0 || _pointSize <= 0)
+                if (_instantiateObjects == null || _instantiateObjects.Count <= 0)
                 {
                     return;
                 }
 
-                var objectList = ListPool<Object>.Get();
-                using var idArray = new NativeArray<int>(_instantiateObjects.Length, Allocator.TempJob);
-                idArray.CopyFrom(_instantiateObjects);
-
-                Resources.InstanceIDToObjectList(idArray, objectList);
-                for (var i = 0; i < objectList.Count; i++)
+                for (var i = 0; i < _instantiateObjects.Count; i++)
                 {
 #if UNITY_EDITOR
-                    DestroyImmediate(objectList[i]);
+                    DestroyImmediate(_instantiateObjects[i]);
 #else
-                    Destroy(child.gameObject);
+                    Destroy(_instantiateObjects[i]);
 #endif
                 }
 
-                ListPool<Object>.Release(objectList);
-                _intPool.Return(_instantiateObjects, true);
+                _instantiateObjects.Clear();
+                _objectGroup.Clear();
             }
         }
 
         private void OnDrawGizmosSelected()
         {
-            if (_pointSize <= 0 || _points.Length < _pointSize)
+            if (pointSize <= 0 || _points == null || _points.Length < pointSize)
             {
                 return;
             }
 
-            for (var i = 0; i < _pointSize; i++)
+            for (var i = 0; i < pointSize; i++)
             {
                 var point = _points[i];
 
@@ -440,15 +440,15 @@ namespace Misaki.ArtTool
 
                         // Draw the x-axis in red
                         Gizmos.color = Color.red;
-                        Gizmos.DrawLine(Vector3.zero, Vector3.right * scale * GIZMOS_BASE_SIZE);
+                        Gizmos.DrawLine(Vector3.zero, Vector3.right * scale * gizmosSize);
 
                         // Draw the y-axis in green
                         Gizmos.color = Color.green;
-                        Gizmos.DrawLine(Vector3.zero, Vector3.up * scale * GIZMOS_BASE_SIZE);
+                        Gizmos.DrawLine(Vector3.zero, Vector3.up * scale * gizmosSize);
 
                         // Draw the z-axis in blue
                         Gizmos.color = Color.blue;
-                        Gizmos.DrawLine(Vector3.zero, Vector3.forward * scale * GIZMOS_BASE_SIZE);
+                        Gizmos.DrawLine(Vector3.zero, Vector3.forward * scale * gizmosSize);
                         break;
 
                     case DebugMode.Index:
@@ -472,7 +472,7 @@ namespace Misaki.ArtTool
                             Gizmos.color = Color.red;
                         }
 
-                        Gizmos.DrawSphere(point.matrix.c3.xyz, GIZMOS_BASE_SIZE / 2.0f);
+                        Gizmos.DrawSphere(point.matrix.GetPosition(), gizmosSize / 2.0f);
                         break;
 
                     default:

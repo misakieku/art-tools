@@ -14,7 +14,7 @@ namespace Misaki.ArtTool
         {
             var currentPoint = points[index];
 
-            var weight = CalculateFieldsWeight(currentPoint.matrix.c3.xyz);
+            var weight = CalculateFieldsWeight(currentPoint.matrix.GetPosition());
             if (weight > 0)
             {
                 for (var i = 0; i < iteration; i++)
@@ -28,10 +28,10 @@ namespace Misaki.ArtTool
 
                         var targetPoint = points[p];
 
-                        var distance = math.distance(currentPoint.matrix.c3.xyz, targetPoint.matrix.c3.xyz);
+                        var distance = math.distance(currentPoint.matrix.GetPosition(), targetPoint.matrix.GetPosition());
                         if (distance < radius)
                         {
-                            var direction = math.normalizesafe(currentPoint.matrix.c3.xyz - targetPoint.matrix.c3.xyz);
+                            var direction = math.normalizesafe(currentPoint.matrix.GetPosition() - targetPoint.matrix.GetPosition());
                             currentPoint.matrix.c3.xyz += (radius - distance) * weight * direction;
 
                             //Debug.Log($"Push at index {index} with distance {radius - distance} and direction {direction}");

@@ -9,7 +9,7 @@ namespace Misaki.ArtTool
         public ObjectDistributionMode mode;
         public uint count;
         public uint seed;
-        public bool alignNormal;
+        public bool isAlignNormal;
 
         public int DistributionCount
         {

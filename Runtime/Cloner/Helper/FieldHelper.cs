@@ -4,7 +4,7 @@ namespace Misaki.ArtTool
 {
     internal class FieldHelper
     {
-        public static float BlendField(float a, float b, float t, BlendingMode blendingMode)
+        internal static float BlendField(float a, float b, float t, BlendingMode blendingMode)
         {
             var result = 0.0f;
             switch (blendingMode)
@@ -53,7 +53,7 @@ namespace Misaki.ArtTool
             return result;
         }
 
-        public static float ApplyRemapping(float weight, ref RemappingSetting remappingSetting)
+        internal static float ApplyRemapping(float weight, ref RemappingSetting remappingSetting)
         {
             if (!remappingSetting.enable)
             {

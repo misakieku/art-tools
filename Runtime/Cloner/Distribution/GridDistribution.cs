@@ -17,14 +17,11 @@ namespace Misaki.ArtTool
                     break;
 
                 case GridShape.Sphere:
-                    var isInsideSphere = ShapeHelper.IsPointInsideSphere(localPosition, 0.0f, setting.count * setting.spacing);
-
-                    isValid = isInsideSphere;
+                    isValid = ShapeHelper.IsPointInsideSphere(localPosition, 0.0f, setting.count * setting.spacing);
                     break;
 
                 case GridShape.Cylinder:
-                    var isInsideCylinder = ShapeHelper.IsPointInsideCylinder(localPosition, 0.0f, setting.count * setting.spacing);
-                    isValid = isInsideCylinder;
+                    isValid = ShapeHelper.IsPointInsideCylinder(localPosition, 0.0f, setting.count * setting.spacing);
                     break;
                 default:
                     isValid = false;

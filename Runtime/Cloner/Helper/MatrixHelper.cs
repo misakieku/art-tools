@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -98,6 +99,20 @@ namespace Misaki.ArtTool
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static float3 GetPosition(this float4x4 matrix)
+        {
+            return matrix.c3.xyz;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static quaternion GetRotation(this float4x4 matrix)
+        {
+            var scale = new float3(math.length(matrix.c0.xyz), math.length(matrix.c1.xyz), math.length(matrix.c2.xyz));
+            return Quaternion.LookRotation(matrix.c2.xyz / scale.z, matrix.c1.xyz / scale.y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static float3 GetScale(this float4x4 matrix)
         {
             return new float3(math.length(matrix.c0.xyz), math.length(matrix.c1.xyz), math.length(matrix.c2.xyz));

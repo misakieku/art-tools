@@ -8,7 +8,7 @@
                     <engine:Label text="Object" enable-rich-text="false" style="flex-grow: 1; margin-left: 28px; font-size: 9px; -unity-text-align: middle-left;" />
                     <engine:Label text="Frequncy" enable-rich-text="false" name="Label" style="width: 50px; font-size: 9px; -unity-text-align: middle-left;" />
                 </engine:VisualElement>
-                <engine:ListView reorderable="true" reorder-mode="Animated" show-border="true" show-add-remove-footer="true" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/InputObjectItemView.uxml?fileID=9197481963319205126&amp;guid=af925948194d82c44a565c55d8ce0de8&amp;type=3#InputObjectItemView" name="input-objects-listview" binding-source-selection-mode="AutoAssign">
+                <engine:ListView reorderable="true" reorder-mode="Animated" show-border="true" show-add-remove-footer="true" name="input-objects-listview" binding-source-selection-mode="AutoAssign" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ItemTemplate/InputObjectItemTemplate.uxml?fileID=9197481963319205126&amp;guid=af925948194d82c44a565c55d8ce0de8&amp;type=3#InputObjectItemTemplate">
                     <Bindings>
                         <engine:DataBinding property="itemsSource" data-source-path="inputObjects" binding-mode="TwoWay" />
                     </Bindings>
@@ -39,7 +39,7 @@
                         <engine:DataBinding property="index" data-source-path="autoGenerate" binding-mode="TwoWay" />
                     </Bindings>
                 </engine:DropdownField>
-                <engine:DropdownField label="Render Mode" choices="Gameobject,Instancing" index="0" name="render-mode-dropdown">
+                <engine:DropdownField label="Instantiate Mode" choices="GameObject,Instancing" index="0" name="render-mode-dropdown">
                     <Bindings>
                         <engine:DataBinding property="index" data-source-path="isRenderInstancing" binding-mode="TwoWay" />
                     </Bindings>
@@ -72,7 +72,7 @@
                     </engine:UnsignedIntegerField>
                     <engine:DropdownField label="Align Normal" choices="Disable,Enable" index="0">
                         <Bindings>
-                            <engine:DataBinding property="index" data-source-path="objectDistributionSetting.alignNormal" binding-mode="TwoWay" />
+                            <engine:DataBinding property="index" data-source-path="objectDistributionSetting.isAlignNormal" binding-mode="TwoWay" />
                         </Bindings>
                     </engine:DropdownField>
                     <Bindings>
@@ -124,22 +124,22 @@
                     </engine:IntegerField>
                     <engine:Vector3Field label="Position Spacing">
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.positionSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.positionSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" ui-to-source-converters="Float3ToVector3Converter" />
                         </Bindings>
                     </engine:Vector3Field>
                     <engine:Vector3Field label="Rotation Spacing">
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.scaleSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.scaleSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" ui-to-source-converters="Float3ToVector3Converter" />
                         </Bindings>
                     </engine:Vector3Field>
                     <engine:Vector3Field label="Scale Spacing">
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.scaleSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.scaleSpacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" ui-to-source-converters="Float3ToVector3Converter" />
                         </Bindings>
                     </engine:Vector3Field>
                     <engine:Vector3Field label="Step Rotation">
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.stepRotation" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="linearDistributionSetting.stepRotation" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" ui-to-source-converters="Float3ToVector3Converter" />
                         </Bindings>
                     </engine:Vector3Field>
                     <Bindings>
@@ -149,12 +149,12 @@
                 <engine:VisualElement name="grid-parameter" style="flex-grow: 1;">
                     <engine:Vector3IntField label="Count">
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.count" binding-mode="TwoWay" source-to-ui-converters="int3ToVector3IntConverter" />
+                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.count" binding-mode="TwoWay" source-to-ui-converters="int3ToVector3IntConverter" ui-to-source-converters="int3ToVector3IntConverter" />
                         </Bindings>
                     </engine:Vector3IntField>
                     <engine:Vector3Field label="Spacing">
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.spacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="gridDistributionSetting.spacing" source-to-ui-converters="Float3ToVector3Converter" binding-mode="TwoWay" ui-to-source-converters="Float3ToVector3Converter" />
                         </Bindings>
                     </engine:Vector3Field>
                     <engine:EnumField label="Shape" value="Center" type="Misaki.ArtTool.GridShape, Misaki.ArtTool">
@@ -171,12 +171,47 @@
                         <engine:DataBinding property="style.display" data-source-path="distributionMode" binding-mode="ToTarget" source-to-ui-converters="GridModeToDisplayStyleConverter" />
                     </Bindings>
                 </engine:VisualElement>
+                <engine:VisualElement name="radial-parameter" style="flex-grow: 1;">
+                    <engine:UnsignedIntegerField label="Count" value="5">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="radialDistributionSetting.count" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:UnsignedIntegerField>
+                    <engine:FloatField label="Radius" value="5">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="radialDistributionSetting.radius" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:FloatField>
+                    <engine:EnumField label="Plane" value="XZ" type="Misaki.ArtTool.PlaneDirection, Misaki.ArtTool">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="radialDistributionSetting.plane" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:EnumField>
+                    <engine:FloatField label="Start Angle" value="0">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="radialDistributionSetting.angleMinMax.x" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:FloatField>
+                    <engine:FloatField label="End Angle" value="360">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="radialDistributionSetting.angleMinMax.y" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:FloatField>
+                    <engine:DropdownField label="Align" choices="Disable,Enable" index="0">
+                        <Bindings>
+                            <engine:DataBinding property="index" data-source-path="radialDistributionSetting.align" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:DropdownField>
+                    <Bindings>
+                        <engine:DataBinding property="style.display" data-source-path="distributionMode" binding-mode="ToTarget" source-to-ui-converters="RadialModeToDisplayStyleConverter" />
+                    </Bindings>
+                </engine:VisualElement>
             </engine:VisualElement>
         </engine:VisualElement>
         <engine:VisualElement>
             <engine:Label text="Effectors" class="SubHeader" />
             <engine:VisualElement class="PropertyContainer">
-                <engine:ListView reorderable="true" reorder-mode="Animated" show-border="true" show-add-remove-footer="true" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/EffectorItemTemplate.uxml?fileID=9197481963319205126&amp;guid=9a72cc6a25b7e104991d25d5c2458b81&amp;type=3#EffectorItemTemplate" name="effectors-listview" binding-source-selection-mode="AutoAssign">
+                <engine:ListView reorderable="true" reorder-mode="Animated" show-border="true" show-add-remove-footer="true" name="effectors-listview" binding-source-selection-mode="AutoAssign" item-template="project://database/Packages/com.misaki.art-tools/Editor/Cloner/View/ItemTemplate/EffectorItemTemplate.uxml?fileID=9197481963319205126&amp;guid=9a72cc6a25b7e104991d25d5c2458b81&amp;type=3#EffectorItemTemplate">
                     <Bindings>
                         <engine:DataBinding property="itemsSource" data-source-path="effectors" binding-mode="TwoWay" />
                     </Bindings>
@@ -191,6 +226,16 @@
                         <engine:DataBinding property="value" data-source-path="debugMode" binding-mode="TwoWay" />
                     </Bindings>
                 </engine:EnumField>
+                <engine:FloatField label="Debug Size" value="0.5">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="gizmosSize" binding-mode="TwoWay" />
+                    </Bindings>
+                </engine:FloatField>
+                <engine:IntegerField label="Point Count" value="42" enabled="false">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="pointSize" binding-mode="ToTarget" />
+                    </Bindings>
+                </engine:IntegerField>
             </engine:VisualElement>
         </engine:VisualElement>
         <engine:VisualElement>

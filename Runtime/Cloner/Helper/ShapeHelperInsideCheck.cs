@@ -45,7 +45,7 @@ namespace Misaki.ArtTool
         {
             var windingNumber = 0;
             var meshScale = meshData.worldMatrix.GetScale();
-            var meshPosition = meshData.worldMatrix.c3.xyz;
+            var meshPosition = meshData.worldMatrix.GetPosition();
 
             for (var i = 0; i < meshData.triangles.Length; i += 3)
             {
